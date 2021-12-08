@@ -1,5 +1,6 @@
 package com.example.kjumpble.ble;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,9 +24,16 @@ class LeDeviceListAdapter {
 
     public void addDevice(BluetoothDevice device) {
         if(!mLeDevices.contains(device)) {
-            Log.d("test8360", "Device: " + device.getName());
             mLeDevices.add(device);
         }
+    }
+
+    public boolean containsDevice(BluetoothDevice device) {
+        return mLeDevices.contains(device);
+    }
+
+    public boolean deleteDevice(BluetoothDevice device) {
+        return mLeDevices.remove(device);
     }
 
     public BluetoothDevice getDevice(int position) {

@@ -8,7 +8,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
         android:maxSdkVersion="30" />
 
-    <!--   藍芽在Android 12 (API 31) 以下需要用到的藍芽權限  -->
+    <!--   藍芽在Android 12 (API 31) 以上需要用到的藍芽權限  -->
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN"
         android:usesPermissionFlags="neverForLocation"
         android:minSdkVersion="31"/>
@@ -16,6 +16,12 @@
         android:minSdkVersion="31"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"
         android:minSdkVersion="31"/>
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:maxSdkVersion="30"
+        android:minSdkVersion="29"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:maxSdkVersion="28" />
 
     <uses-feature
         android:name="android.hardware.bluetooth_le"
