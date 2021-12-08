@@ -10,4 +10,6 @@
     <string name="do_nothing">Do nothing</string>
     <string name="scanning">Scanning…</string>
     <string name="connecting">Connecting…</string>
+
+    <string name="get_number_of_data">Get number of data</string>
 </resources>

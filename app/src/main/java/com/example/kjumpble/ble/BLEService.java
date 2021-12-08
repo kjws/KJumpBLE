@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
@@ -15,6 +17,11 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+
+import com.example.kjumpble.Helper;
+
+import java.util.List;
+import java.util.UUID;
 
 public class BLEService extends Service {
     private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -131,7 +138,7 @@ public class BLEService extends Service {
         try {
             final BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
             // connect to the GATT server on the device
-            bluetoothGatt = device.connectGatt(this, false, bluetoothGattCallback);
+            bluetoothGatt = device.connectGatt(this, true, bluetoothGattCallback);
             return true;
         } catch (IllegalArgumentException exception) {
             return false;
@@ -142,6 +149,7 @@ public class BLEService extends Service {
         @Override
         public void onConnectionStateChange (BluetoothGatt gatt, int status, int newState) {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                gatt.discoverServices();
                 // successfully connected to the GATT Server
                 Log.d("test8360", gatt.getDevice().getName() + " STATE_CONNECTED");
                 onProgressListener.onConnected();
@@ -167,13 +175,62 @@ public class BLEService extends Service {
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
+                for (BluetoothGattService service : gatt.getServices()) {
+                    Log.w("test8360", "onServicesDiscovered: GATT_SUCCESS = " + service.getUuid().toString());
+                    if (service.getUuid().equals(SampleServiceAttributes.OUcare_CHARACTERISTIC_CONFIG_UUID)) {
+                        Log.w("test8360", "onServicesDiscovered: GATT_SUCCESS_CORRECT = " + service.getUuid().toString());
+                        BluetoothGattCharacteristic characteristic = service.getCharacteristic(SampleGattAttributes.OUcare_CHARACTERISTIC_READ_UUID);
+                        setCharacteristicNotification(characteristic, true);
+                    }
+                }
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
             }
             else {
                 Log.w("test8360", "onServicesDiscovered received: " + status);
             }
         }
+
+        @Override
+        public void onDescriptorRead (BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorRead(gatt, descriptor, status);
+
+            Log.w("test8360", "onDescriptorRead");
+        }
+
+        @Override
+        public void onDescriptorWrite (BluetoothGatt gatt, BluetoothGattDescriptor descriptor, int status) {
+            super.onDescriptorWrite(gatt, descriptor, status);
+
+            Log.w("test8360", "onDescriptorWrite");
+        }
+
+        @Override
+        public void onCharacteristicRead (BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicRead(gatt, characteristic, status);
+
+            Log.w("test8360", "onCharacteristicRead");
+            Log.w("test8360", "onCharacteristicRead = " + characteristic.getUuid().toString());
+        }
+
+        @Override
+        public void onCharacteristicChanged (BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
+            super.onCharacteristicChanged(gatt, characteristic);
+
+            Log.w("test8360", "onCharacteristicChanged = " + Helper.getHexStr(characteristic.getValue()));
+        }
+
+        @Override
+        public void onCharacteristicWrite (BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicWrite(gatt, characteristic, status);
+
+            Log.w("test8360", "onCharacteristicWrite = " + Helper.getHexStr(characteristic.getValue()));
+        }
     };
+
+    public List<BluetoothGattService> getSupportedGattServices() {
+        if (bluetoothGatt == null) return null;
+        return bluetoothGatt.getServices();
+    }
 
     private void broadcastUpdate (final String action) {
         final Intent intent = new Intent(action);
@@ -194,5 +251,43 @@ public class BLEService extends Service {
         public BLEService getServiceInstance () {
             return BLEService.this;
         }
+    }
+
+    public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
+        if (bluetoothGatt == null) {
+            Log.w("test8360", "BluetoothGatt not initialized");
+            return;
+        }
+        bluetoothGatt.readCharacteristic(characteristic);
+    }
+
+    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic, boolean enabled) {
+        if (bluetoothGatt == null) {
+            Log.w("test8360", "BluetoothGatt not initialized");
+            return;
+        }
+        if (bluetoothGatt.setCharacteristicNotification(characteristic, enabled)) {
+            Log.w("test8360", "Notification success");
+            bluetoothGatt.readCharacteristic(characteristic);
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG);
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            bluetoothGatt.writeDescriptor(descriptor);
+        }
+        else {
+            Log.w("test8360", "Notification failed");
+        }
+    }
+
+    public void writeCharacteristic () {
+        if (bluetoothGatt == null) {
+            Log.w("test8360", "BluetoothGatt not initialized");
+            return;
+        }
+        BluetoothGattCharacteristic characteristic = bluetoothGatt.getService(SampleServiceAttributes.OUcare_CHARACTERISTIC_CONFIG_UUID).getCharacteristic(SampleGattAttributes.OUcare_CHARACTERISTIC_WRITE_FFF3_UUID);
+        byte[] bytes = new byte[]{0x02, 0x04, 0x00, 0x6c};
+        Log.d("test8360", "writeCharacteristic = " + characteristic.getUuid().toString());
+        characteristic.setValue(bytes);
+        Log.d("test8360", "writeCharacteristic_bytes = " + Helper.getHexStr(characteristic.getValue()));
+        bluetoothGatt.writeCharacteristic(characteristic);
     }
 }

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private BLEService bleService;
 
     private Button scanDeviceButton;
+    private Button getNumberOfDataButton;
     private TextView bleStatusTextView;
 
     private Activity activity;
@@ -40,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
         scanDeviceButton = findViewById(R.id.ScanDeviceButton);
         scanDeviceButton.setOnClickListener(scanDeviceButtonOnClickListener);
+
+        getNumberOfDataButton = findViewById(R.id.GetNumberOfDataButton);
+        getNumberOfDataButton.setOnClickListener(getNumberOfDataButtonOnClickListener);
+
         bleStatusTextView = findViewById(R.id.bleStatusTextView);
 
         MyPermissions myPermissions = new MyPermissions();
@@ -98,6 +104,10 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private final View.OnClickListener getNumberOfDataButtonOnClickListener = v -> {
+        bleService.writeCharacteristic();
+    };
+
     private final OnProgressListener onProgressListener = new OnProgressListener() {
         @Override
         public void onScanMotionFailed () {
@@ -125,5 +135,16 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-
+    private final BroadcastReceiver gattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BLEService.ACTION_GATT_CONNECTED.equals(action)) {
+            }
+            else if (BLEService.ACTION_GATT_DISCONNECTED.equals(action)) {
+            }
+            else if (BLEService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+            }
+        }
+    };
 }
