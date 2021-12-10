@@ -29,6 +29,17 @@
         app:layout_constraintVertical_bias="0.05" />
 
     <Button
+        android:id="@+id/GetUserIndexButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/get_user_index"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ScanDeviceButton"
+        app:layout_constraintVertical_bias="0.05" />
+
+    <Button
         android:id="@+id/GetNumberOfDataButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -36,7 +47,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ScanDeviceButton"
+        app:layout_constraintTop_toBottomOf="@+id/GetUserIndexButton"
+        app:layout_constraintVertical_bias="0.05" />
+
+    <Button
+        android:id="@+id/ReadLatestMemoryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/read_latest_memory"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/GetNumberOfDataButton"
         app:layout_constraintVertical_bias="0.05" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

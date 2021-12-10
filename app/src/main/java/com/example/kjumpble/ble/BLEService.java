@@ -12,16 +12,17 @@ import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.example.kjumpble.Helper;
-
-import java.util.List;
-import java.util.UUID;
+import com.example.kjumpble.ble.cmd.BLE_CMD;
 
 public class BLEService extends Service {
     private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -48,6 +49,10 @@ public class BLEService extends Service {
 
     private final IBinder msgBinder = new MsgBinder();
 
+    private BLE_CMD cmd;
+
+    WriteCmdCharacteristic8360 writeCmdCharacteristic8360;
+
     @Override
     public void onCreate () {
         super.onCreate();
@@ -59,11 +64,13 @@ public class BLEService extends Service {
     public IBinder onBind (Intent intent) {
         Log.d("test8360", "BLEService onBind");
 
+        registerReceiver(resultReceiver, new IntentFilter(ResultReceiveIntent.SEND_RESULT_INTENT));
         return msgBinder;
     }
 
     @Override
     public boolean onUnbind (Intent intent) {
+        unregisterReceiver(resultReceiver);
         Log.d("test8360", "BLEService onUnbind");
 //        stopSelf();
         return super.onUnbind(intent);
@@ -156,6 +163,8 @@ public class BLEService extends Service {
                 connectionState = STATE_CONNECTED;
                 broadcastUpdate(ACTION_GATT_CONNECTED);
 
+                writeCmdCharacteristic8360 = new WriteCmdCharacteristic8360(BLEService.this, gatt);
+                Log.d("test8360", "writeCmdCharacteristic8360 init");
                 // add device in connecting devices
                 connectingDeviceListAdapter.addDevice(gatt.getDevice());
 //                getSuppor
@@ -179,6 +188,7 @@ public class BLEService extends Service {
                     Log.w("test8360", "onServicesDiscovered: GATT_SUCCESS = " + service.getUuid().toString());
                     if (service.getUuid().equals(SampleServiceAttributes.OUcare_CHARACTERISTIC_CONFIG_UUID)) {
                         Log.w("test8360", "onServicesDiscovered: GATT_SUCCESS_CORRECT = " + service.getUuid().toString());
+
                         BluetoothGattCharacteristic characteristic = service.getCharacteristic(SampleGattAttributes.OUcare_CHARACTERISTIC_READ_UUID);
                         setCharacteristicNotification(characteristic, true);
                     }
@@ -217,6 +227,7 @@ public class BLEService extends Service {
             super.onCharacteristicChanged(gatt, characteristic);
 
             Log.w("test8360", "onCharacteristicChanged = " + Helper.getHexStr(characteristic.getValue()));
+            writeCmdCharacteristic8360.onCharacteristicChanged(characteristic);
         }
 
         @Override
@@ -227,11 +238,6 @@ public class BLEService extends Service {
         }
     };
 
-    public List<BluetoothGattService> getSupportedGattServices() {
-        if (bluetoothGatt == null) return null;
-        return bluetoothGatt.getServices();
-    }
-
     private void broadcastUpdate (final String action) {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
@@ -241,10 +247,6 @@ public class BLEService extends Service {
     private OnProgressListener onProgressListener;
     public void setOnProgressListener(OnProgressListener onProgressListener) {
         this.onProgressListener = onProgressListener;
-    }
-
-    public boolean getScanning() {
-        return scanning;
     }
 
     public class MsgBinder extends Binder {
@@ -266,28 +268,51 @@ public class BLEService extends Service {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
-        if (bluetoothGatt.setCharacteristicNotification(characteristic, enabled)) {
-            Log.w("test8360", "Notification success");
-            bluetoothGatt.readCharacteristic(characteristic);
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG);
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            bluetoothGatt.writeDescriptor(descriptor);
+        if (!bluetoothGatt.setCharacteristicNotification(characteristic, enabled)) {
+            return;
         }
-        else {
-            Log.w("test8360", "Notification failed");
-        }
+
+        Log.w("test8360", "Notification success");
+        BluetoothGattDescriptor descriptor = characteristic.getDescriptor(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG);
+        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+        bluetoothGatt.writeDescriptor(descriptor);
     }
 
-    public void writeCharacteristic () {
+    public void writeCharacteristic (BLE_CLIENT_CMD clientCmd) {
         if (bluetoothGatt == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
-        BluetoothGattCharacteristic characteristic = bluetoothGatt.getService(SampleServiceAttributes.OUcare_CHARACTERISTIC_CONFIG_UUID).getCharacteristic(SampleGattAttributes.OUcare_CHARACTERISTIC_WRITE_FFF3_UUID);
-        byte[] bytes = new byte[]{0x02, 0x04, 0x00, 0x6c};
-        Log.d("test8360", "writeCharacteristic = " + characteristic.getUuid().toString());
-        characteristic.setValue(bytes);
-        Log.d("test8360", "writeCharacteristic_bytes = " + Helper.getHexStr(characteristic.getValue()));
-        bluetoothGatt.writeCharacteristic(characteristic);
+        switch (clientCmd) {
+            case ReadUserAndMemoryCmd:
+                writeCmdCharacteristic8360.readUserIndex();
+                break;
+            case ReadNumberOfDataCmd:
+                writeCmdCharacteristic8360.readNumberOfData();
+                break;
+            case ReadLatestMemoryCmd:
+                writeCmdCharacteristic8360.readLatestMemory();
+                break;
+        }
     }
+
+    BroadcastReceiver resultReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive (Context context, Intent intent) {
+            String action = intent.getAction();
+            Log.d("test8360", "receive action = " + action);
+            if (intent.getExtras().get(BroadcastIntentExtraName.DoingAction).equals(ResultReceiveIntent.SEND_LATEST_MEMORY_INTENT)) {
+
+            }
+            else if (intent.getExtras().get(BroadcastIntentExtraName.DoingAction).equals(ResultReceiveIntent.SEND_ALL_MEMORY_INTENT)) {
+
+            }
+            else if (intent.getExtras().get(BroadcastIntentExtraName.DoingAction).equals(ResultReceiveIntent.SEND_USER_INDEX_INTENT)) {
+                Log.d("test8360", "get user index = " + intent.getExtras().getInt(BroadcastIntentExtraName.UserIndex));
+            }
+            else if (intent.getExtras().get(BroadcastIntentExtraName.DoingAction).equals(ResultReceiveIntent.SEND_NUMBER_OF_DATA_INTENT)) {
+                Log.d("test8360", "get number of data = " + intent.getExtras().getInt(BroadcastIntentExtraName.NumberOfData));
+            }
+        }
+    };
 }

@@ -12,4 +12,6 @@
     <string name="connecting">Connecting…</string>
 
     <string name="get_number_of_data">Get number of data</string>
+    <string name="get_user_index">Get user index</string>
+    <string name="read_latest_memory">Read latest memory</string>
 </resources>

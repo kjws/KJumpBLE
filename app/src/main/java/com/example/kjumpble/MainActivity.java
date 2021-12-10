@@ -17,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.kjumpble.ble.BLEService;
+import com.example.kjumpble.ble.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.CheckBLEScan;
 import com.example.kjumpble.ble.CheckLocationStatus;
 import com.example.kjumpble.ble.OnProgressListener;
@@ -27,12 +28,15 @@ public class MainActivity extends AppCompatActivity {
     private BLEService bleService;
 
     private Button scanDeviceButton;
+    private Button getUserIndexButton;
     private Button getNumberOfDataButton;
+    private Button readLatestMemoryButton;
     private TextView bleStatusTextView;
 
     private Activity activity;
 
     private Intent bleServiceIntent;
+
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,8 +47,14 @@ public class MainActivity extends AppCompatActivity {
         scanDeviceButton = findViewById(R.id.ScanDeviceButton);
         scanDeviceButton.setOnClickListener(scanDeviceButtonOnClickListener);
 
+        getUserIndexButton = findViewById(R.id.GetUserIndexButton);
+        getUserIndexButton.setOnClickListener(getUserIndexOnClickListener);
+
         getNumberOfDataButton = findViewById(R.id.GetNumberOfDataButton);
         getNumberOfDataButton.setOnClickListener(getNumberOfDataButtonOnClickListener);
+
+        readLatestMemoryButton = findViewById(R.id.ReadLatestMemoryButton);
+        readLatestMemoryButton.setOnClickListener(readLatestMemoryButtonOnClickListener);
 
         bleStatusTextView = findViewById(R.id.bleStatusTextView);
 
@@ -104,8 +114,17 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+
+    private final View.OnClickListener getUserIndexOnClickListener = v -> {
+        bleService.writeCharacteristic(BLE_CLIENT_CMD.ReadUserAndMemoryCmd);
+    };
+
     private final View.OnClickListener getNumberOfDataButtonOnClickListener = v -> {
-        bleService.writeCharacteristic();
+        bleService.writeCharacteristic(BLE_CLIENT_CMD.ReadNumberOfDataCmd);
+    };
+
+    private final View.OnClickListener readLatestMemoryButtonOnClickListener = v -> {
+        bleService.writeCharacteristic(BLE_CLIENT_CMD.ReadLatestMemoryCmd);
     };
 
     private final OnProgressListener onProgressListener = new OnProgressListener() {
@@ -116,22 +135,22 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onStartScan () {
-            scanDeviceButton.setText(R.string.stop_scan);
+            activity.runOnUiThread(() -> scanDeviceButton.setText(R.string.stop_scan));
         }
 
         @Override
         public void onStopScan () {
-            scanDeviceButton.setText(R.string.start_scan);
+            activity.runOnUiThread(() -> scanDeviceButton.setText(R.string.start_scan));
         }
 
         @Override
         public void onConnected () {
-            bleStatusTextView.setText(R.string.connecting);
+            activity.runOnUiThread(() -> bleStatusTextView.setText(R.string.connecting));
         }
 
         @Override
         public void onDisConnected () {
-            bleStatusTextView.setText(R.string.do_nothing);
+            activity.runOnUiThread(() -> bleStatusTextView.setText(R.string.do_nothing));
         }
     };
 
