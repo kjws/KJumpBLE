@@ -21,7 +21,10 @@ import com.example.kjumpble.ble.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.CheckBLEScan;
 import com.example.kjumpble.ble.CheckLocationStatus;
 import com.example.kjumpble.ble.OnProgressListener;
-import com.example.kjumpble.permission.MyPermissions;
+import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
+import com.example.kjumpble.ble.timeFormat.TemperatureUnitEnum;
+import com.example.kjumpble.util.MyPermissions;
 import com.example.kjumpble.permission.PermissionRequestCode;
 
 public class MainActivity extends AppCompatActivity {
@@ -31,6 +34,17 @@ public class MainActivity extends AppCompatActivity {
     private Button getUserIndexButton;
     private Button getNumberOfDataButton;
     private Button readLatestMemoryButton;
+    private Button readAllMemoryButton;
+    private Button clearAllDataButton;
+
+    private Button writeClockTimeAndFlagButton;
+
+    private Button writeReminderClockTimeAndFlagButton;
+
+    private Button initDeviceButton;
+
+    private Button writeTemperatureUnitButton;
+
     private TextView bleStatusTextView;
 
     private Activity activity;
@@ -55,6 +69,28 @@ public class MainActivity extends AppCompatActivity {
 
         readLatestMemoryButton = findViewById(R.id.ReadLatestMemoryButton);
         readLatestMemoryButton.setOnClickListener(readLatestMemoryButtonOnClickListener);
+
+        readAllMemoryButton = findViewById(R.id.ReadAllMemoryButton);
+        readAllMemoryButton.setOnClickListener(readAllMemoryButtonOnClickListener);
+
+        clearAllDataButton = findViewById(R.id.ClearAllDataButton);
+        clearAllDataButton.setOnClickListener(clearAllDataButtonOnClickListener);
+
+        // Clock
+        writeClockTimeAndFlagButton = findViewById(R.id.WriteClockTimeAndFlagButton);
+        writeClockTimeAndFlagButton.setOnClickListener(writeClockTimeAndFlagButtonOnClickListener);
+
+        // Reminder clock
+        writeReminderClockTimeAndFlagButton = findViewById(R.id.WriteReminderClickTimeAndFlagButton);
+        writeReminderClockTimeAndFlagButton.setOnClickListener(writeReminderClockTimeAndFlagButtonOnClickListener);
+
+        // init device
+        initDeviceButton = findViewById(R.id.InitDeviceButton);
+        initDeviceButton.setOnClickListener(initDeviceButtonOnClickListener);
+
+        // Temperature Unit
+        writeTemperatureUnitButton = findViewById(R.id.writeTemperatureUnit);
+        writeTemperatureUnitButton.setOnClickListener(writeTemperatureUnitOnClickListener);
 
         bleStatusTextView = findViewById(R.id.bleStatusTextView);
 
@@ -116,15 +152,47 @@ public class MainActivity extends AppCompatActivity {
 
 
     private final View.OnClickListener getUserIndexOnClickListener = v -> {
-        bleService.writeCharacteristic(BLE_CLIENT_CMD.ReadUserAndMemoryCmd);
+        bleService.writeCommand(BLE_CLIENT_CMD.ReadUserAndMemoryCmd);
     };
 
     private final View.OnClickListener getNumberOfDataButtonOnClickListener = v -> {
-        bleService.writeCharacteristic(BLE_CLIENT_CMD.ReadNumberOfDataCmd);
+        bleService.writeCommand(BLE_CLIENT_CMD.ReadNumberOfDataCmd);
     };
 
     private final View.OnClickListener readLatestMemoryButtonOnClickListener = v -> {
-        bleService.writeCharacteristic(BLE_CLIENT_CMD.ReadLatestMemoryCmd);
+        bleService.writeCommand(BLE_CLIENT_CMD.ReadLatestMemoryCmd);
+    };
+
+    private final View.OnClickListener readAllMemoryButtonOnClickListener = v -> {
+        bleService.writeCommand(BLE_CLIENT_CMD.ReadAllMemoryCmd);
+    };
+
+    private final View.OnClickListener clearAllDataButtonOnClickListener = v -> {
+        bleService.writeCommand(BLE_CLIENT_CMD.ClearAllDataCmd);
+    };
+
+    private static final ClockTimeFormat testClockTime = new ClockTimeFormat(2021, 12, 9, 10, 5, 40);
+    private static final ReminderTimeFormat testReminderClockTime = new ReminderTimeFormat(10, 6);
+    private static final TemperatureUnitEnum testTemperatureUnit = TemperatureUnitEnum.F;
+    private static final boolean testEnable = false;
+    // Clock
+    private final View.OnClickListener writeClockTimeAndFlagButtonOnClickListener = v -> {
+        bleService.writeClockTimeAndShowFlag(testClockTime, testEnable);
+    };
+
+    // Reminder
+    private final View.OnClickListener writeReminderClockTimeAndFlagButtonOnClickListener = v -> {
+        bleService.writeReminderClockTimeAndEnabled(testReminderClockTime, testEnable);
+    };
+
+    // Init
+    private final View.OnClickListener initDeviceButtonOnClickListener = v -> {
+        bleService.writeInitDevice();
+    };
+
+    // Unit
+    private final View.OnClickListener writeTemperatureUnitOnClickListener = v -> {
+        bleService.writeTemperatureUnit(testTemperatureUnit);
     };
 
     private final OnProgressListener onProgressListener = new OnProgressListener() {

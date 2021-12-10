@@ -26,7 +26,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.05" />
+        app:layout_constraintVertical_bias="0.00" />
 
     <Button
         android:id="@+id/GetUserIndexButton"
@@ -37,7 +37,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ScanDeviceButton"
-        app:layout_constraintVertical_bias="0.05" />
+        app:layout_constraintVertical_bias="0.00" />
 
     <Button
         android:id="@+id/GetNumberOfDataButton"
@@ -48,7 +48,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/GetUserIndexButton"
-        app:layout_constraintVertical_bias="0.05" />
+        app:layout_constraintVertical_bias="0.00" />
 
     <Button
         android:id="@+id/ReadLatestMemoryButton"
@@ -59,6 +59,72 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/GetNumberOfDataButton"
-        app:layout_constraintVertical_bias="0.05" />
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/ReadAllMemoryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/read_all_memory"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ReadLatestMemoryButton"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/ClearAllDataButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/clear_all_data"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ReadAllMemoryButton"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/WriteClockTimeAndFlagButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/write_clock_time_and_flag"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ClearAllDataButton"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/WriteReminderClickTimeAndFlagButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/write_reminder_clock_time_and_flag"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/WriteClockTimeAndFlagButton"
+        app:layout_constraintVertical_bias="0.00"/>
+
+    <Button
+        android:id="@+id/InitDeviceButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/init_device"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/WriteReminderClickTimeAndFlagButton"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/writeTemperatureUnit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/write_temperature_unit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/InitDeviceButton"
+        app:layout_constraintVertical_bias="0.00" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,5 +5,8 @@ public enum BLE_CLIENT_CMD {
     ReadUserAndMemoryCmd,
     ReadLatestMemoryCmd,
     ReadAllMemoryCmd,
-
+    ClearAllDataCmd,
+    WriteClockCmd,
+    WriteUnitCmd,
+    WriteRefreshCmd,
 }

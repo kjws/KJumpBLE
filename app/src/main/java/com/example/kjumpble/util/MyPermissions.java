@@ -1,4 +1,4 @@
-package com.example.kjumpble.permission;
+package com.example.kjumpble.util;
 
 import android.Manifest;
 import android.os.Build;

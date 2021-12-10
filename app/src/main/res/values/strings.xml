@@ -14,4 +14,18 @@
     <string name="get_number_of_data">Get number of data</string>
     <string name="get_user_index">Get user index</string>
     <string name="read_latest_memory">Read latest memory</string>
+    <string name="read_all_memory">Read all memory</string>
+    <string name="clear_all_data">Clear all data</string>
+
+    <string name="write_clock_time">Write clock time</string>
+    <string name="write_clock_flag">Write clock show flag</string>
+    <string name="write_clock_time_and_flag">Write clock time and show flag</string>
+
+    <string name="write_reminder_clock_time">Write reminder clock time</string>
+    <string name="write_reminder_clock_flag">Write reminder clock flag</string>
+    <string name="write_reminder_clock_time_and_flag">Write reminder clock time and flag</string>
+
+    <string name="write_temperature_unit">Write temperature unit</string>
+
+    <string name="init_device">Init Device</string>
 </resources>

@@ -17,12 +17,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
 import com.example.kjumpble.Helper;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
+import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
+import com.example.kjumpble.ble.timeFormat.TemperatureUnitEnum;
+
+import java.util.ArrayList;
 
 public class BLEService extends Service {
     private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -51,7 +57,7 @@ public class BLEService extends Service {
 
     private BLE_CMD cmd;
 
-    WriteCmdCharacteristic8360 writeCmdCharacteristic8360;
+    Kjump8360 kjump8360;
 
     @Override
     public void onCreate () {
@@ -163,8 +169,8 @@ public class BLEService extends Service {
                 connectionState = STATE_CONNECTED;
                 broadcastUpdate(ACTION_GATT_CONNECTED);
 
-                writeCmdCharacteristic8360 = new WriteCmdCharacteristic8360(BLEService.this, gatt);
-                Log.d("test8360", "writeCmdCharacteristic8360 init");
+                kjump8360 = new Kjump8360(BLEService.this, gatt);
+                Log.d("test8360", "Kjump8360 init");
                 // add device in connecting devices
                 connectingDeviceListAdapter.addDevice(gatt.getDevice());
 //                getSuppor
@@ -218,7 +224,6 @@ public class BLEService extends Service {
         public void onCharacteristicRead (BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
 
-            Log.w("test8360", "onCharacteristicRead");
             Log.w("test8360", "onCharacteristicRead = " + characteristic.getUuid().toString());
         }
 
@@ -227,7 +232,7 @@ public class BLEService extends Service {
             super.onCharacteristicChanged(gatt, characteristic);
 
             Log.w("test8360", "onCharacteristicChanged = " + Helper.getHexStr(characteristic.getValue()));
-            writeCmdCharacteristic8360.onCharacteristicChanged(characteristic);
+            kjump8360.onCharacteristicChanged(characteristic);
         }
 
         @Override
@@ -242,7 +247,6 @@ public class BLEService extends Service {
         final Intent intent = new Intent(action);
         sendBroadcast(intent);
     }
-
 
     private OnProgressListener onProgressListener;
     public void setOnProgressListener(OnProgressListener onProgressListener) {
@@ -278,22 +282,60 @@ public class BLEService extends Service {
         bluetoothGatt.writeDescriptor(descriptor);
     }
 
-    public void writeCharacteristic (BLE_CLIENT_CMD clientCmd) {
+    public void writeCommand (BLE_CLIENT_CMD clientCmd) {
         if (bluetoothGatt == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
         switch (clientCmd) {
             case ReadUserAndMemoryCmd:
-                writeCmdCharacteristic8360.readUserIndex();
+                kjump8360.readUserIndex();
                 break;
             case ReadNumberOfDataCmd:
-                writeCmdCharacteristic8360.readNumberOfData();
+                kjump8360.readNumberOfData();
                 break;
             case ReadLatestMemoryCmd:
-                writeCmdCharacteristic8360.readLatestMemory();
+                kjump8360.readLatestMemory();
+                break;
+            case ReadAllMemoryCmd:
+                kjump8360.readAllMemory();
+                break;
+            case ClearAllDataCmd:
+                kjump8360.clearAllData();
                 break;
         }
+    }
+
+    public void writeClockTimeAndShowFlag (ClockTimeFormat clock_time, boolean enabled) {
+        if (bluetoothGatt == null) {
+            Log.w("test8360", "BluetoothGatt not initialized");
+            return;
+        }
+        kjump8360.writeClockTimeAndShowFlag(clock_time, enabled);
+    }
+
+    public void writeReminderClockTimeAndEnabled (ReminderTimeFormat reminder_clock_time, boolean enabled) {
+        if (bluetoothGatt == null) {
+            Log.w("test8360", "BluetoothGatt not initialized");
+            return;
+        }
+        kjump8360.writeReminderClockTimeAndEnabled(reminder_clock_time, enabled);
+    }
+
+    public void writeTemperatureUnit (TemperatureUnitEnum unit) {
+        if (bluetoothGatt == null) {
+            Log.w("test8360", "BluetoothGatt not initialized");
+            return;
+        }
+        kjump8360.writeTemperatureUnit(unit);
+    }
+
+    public void writeInitDevice () {
+        if (bluetoothGatt == null) {
+            Log.w("test8360", "BluetoothGatt not initialized");
+            return;
+        }
+        kjump8360.initDevice();
     }
 
     BroadcastReceiver resultReceiver = new BroadcastReceiver() {
@@ -301,17 +343,33 @@ public class BLEService extends Service {
         public void onReceive (Context context, Intent intent) {
             String action = intent.getAction();
             Log.d("test8360", "receive action = " + action);
-            if (intent.getExtras().get(BroadcastIntentExtraName.DoingAction).equals(ResultReceiveIntent.SEND_LATEST_MEMORY_INTENT)) {
+            BLE_CLIENT_CMD bleClientCmd = (BLE_CLIENT_CMD) intent.getExtras().get(BroadcastIntentExtraName.DoingAction);
 
-            }
-            else if (intent.getExtras().get(BroadcastIntentExtraName.DoingAction).equals(ResultReceiveIntent.SEND_ALL_MEMORY_INTENT)) {
-
-            }
-            else if (intent.getExtras().get(BroadcastIntentExtraName.DoingAction).equals(ResultReceiveIntent.SEND_USER_INDEX_INTENT)) {
-                Log.d("test8360", "get user index = " + intent.getExtras().getInt(BroadcastIntentExtraName.UserIndex));
-            }
-            else if (intent.getExtras().get(BroadcastIntentExtraName.DoingAction).equals(ResultReceiveIntent.SEND_NUMBER_OF_DATA_INTENT)) {
-                Log.d("test8360", "get number of data = " + intent.getExtras().getInt(BroadcastIntentExtraName.NumberOfData));
+            switch (bleClientCmd) {
+                case ReadNumberOfDataCmd:
+                    Log.d("test8360", "get number of data = " + intent.getExtras().getInt(BroadcastIntentExtraName.NumberOfData));
+                    break;
+                case ReadUserAndMemoryCmd:
+                    Log.d("test8360", "get user index = " + intent.getExtras().getInt(BroadcastIntentExtraName.UserIndex));
+                    break;
+                case ReadLatestMemoryCmd: {
+                    Bundle extra = intent.getBundleExtra("extra");
+                    ArrayList<DataFor8360> dataFor8360s = (ArrayList<DataFor8360>) extra.getSerializable(BroadcastIntentExtraName.Data);
+                    Log.d("test8360", "get latest memory = " + dataFor8360s.get(0).Temperature);
+                    break;
+                }
+                case ReadAllMemoryCmd: {
+                    Bundle extra = intent.getBundleExtra("extra");
+                    ArrayList<DataFor8360> dataFor8360s = (ArrayList<DataFor8360>) extra.getSerializable(BroadcastIntentExtraName.Data);
+                    Log.d("test8360", "get all memory = " + dataFor8360s.get(0).Temperature);
+                    break;
+                }
+                case ClearAllDataCmd:
+                    Log.d("test8360", "clear all data.");
+                    break;
+                case WriteClockCmd:
+                    Log.d("test8360", "write successes.");
+                    break;
             }
         }
     };

@@ -1,8 +1,12 @@
 package com.example.kjumpble.ble;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
-public class DataFor8360 {
+import java.io.Serializable;
+
+public class DataFor8360 implements Serializable {
     int Year;
     int Month;
     int Day;
@@ -18,7 +22,7 @@ public class DataFor8360 {
         Hour = data[4];
         Minute = data[5];
         SensePosition = calSensePosition(data[6]);
-        Temperature = (float) ((data[7] * 256 + data[8]) / 100.0);
+        Temperature = (float) (((data[7] & 0xff) * 256 + (data[8] & 0xff)) / 100.0);
 
         logAll();
     }
@@ -43,6 +47,23 @@ public class DataFor8360 {
         Log.d("test8360", "Minute = " + Minute);
         Log.d("test8360", "SensePosition = " + SensePosition);
         Log.d("test8360", "Temperature = " + Temperature);
+    }
 
+    private int mData;
+
+    // this is used to regenerate your object. All Parcelables must have a CREATOR that implements these two methods
+    public static final Parcelable.Creator<DataFor8360> CREATOR = new Parcelable.Creator<DataFor8360>() {
+        public DataFor8360 createFromParcel(Parcel in) {
+            return new DataFor8360(in);
+        }
+
+        public DataFor8360[] newArray(int size) {
+            return new DataFor8360[size];
+        }
+    };
+
+    // example constructor that takes a Parcel and gives you an object populated with it's values
+    private DataFor8360(Parcel in) {
+        mData = in.readInt();
     }
 }
