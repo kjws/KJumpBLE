@@ -1,21 +1,23 @@
-package com.example.kjumpble.ble;
+package com.example.kjumpble.ble.data;
 
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
+import com.example.kjumpble.ble.SensePositionEnum;
+
 import java.io.Serializable;
 
 public class DataFor8360 implements Serializable {
-    int Year;
-    int Month;
-    int Day;
-    int Hour;
-    int Minute;
-    int SensePosition;
-    float Temperature;
+    public int Year;
+    public int Month;
+    public int Day;
+    public int Hour;
+    public int Minute;
+    public int SensePosition;
+    public float Temperature;
 
-    DataFor8360(byte[] data) {
+    public DataFor8360 (byte[] data) {
         Year = 2000 + data[1];
         Month = data[2];
         Day = data[3];
