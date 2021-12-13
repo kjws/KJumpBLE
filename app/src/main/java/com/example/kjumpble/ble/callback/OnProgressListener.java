@@ -1,4 +1,4 @@
-package com.example.kjumpble.ble;
+package com.example.kjumpble.ble.callback;
 
 public interface OnProgressListener {
     void onScanMotionFailed();
