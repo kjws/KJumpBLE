@@ -17,15 +17,16 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.kjumpble.ble.BLEService;
-import com.example.kjumpble.ble.BLE_CLIENT_CMD;
+import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.CheckBLEScan;
 import com.example.kjumpble.ble.CheckLocationStatus;
-import com.example.kjumpble.ble.OnProgressListener;
+import com.example.kjumpble.ble.callback.OnProgressListener;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.timeFormat.TemperatureUnitEnum;
 import com.example.kjumpble.util.MyPermissions;
 import com.example.kjumpble.permission.PermissionRequestCode;
+import com.kjump.kjumpsdk.Kjump8360;
 
 public class MainActivity extends AppCompatActivity {
     private BLEService bleService;
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate (Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         activity = this;
@@ -173,8 +175,8 @@ public class MainActivity extends AppCompatActivity {
 
     private static final ClockTimeFormat testClockTime = new ClockTimeFormat(2021, 12, 9, 10, 5, 40);
     private static final ReminderTimeFormat testReminderClockTime = new ReminderTimeFormat(10, 6);
-    private static final TemperatureUnitEnum testTemperatureUnit = TemperatureUnitEnum.F;
-    private static final boolean testEnable = false;
+    private static final TemperatureUnitEnum testTemperatureUnit = TemperatureUnitEnum.C;
+    private static final boolean testEnable = true;
     // Clock
     private final View.OnClickListener writeClockTimeAndFlagButtonOnClickListener = v -> {
         bleService.writeClockTimeAndShowFlag(testClockTime, testEnable);
