@@ -8,5 +8,5 @@ public enum BLE_CLIENT_CMD {
     ClearAllDataCmd,
     WriteClockCmd,
     WriteUnitCmd,
-    WriteRefreshCmd,
+    WriteInitCmd,
 }
