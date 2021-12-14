@@ -1,5 +1,9 @@
 package com.example.kjumpble.ble.cmd;
 
+import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
+import com.example.kjumpble.ble.timeFormat.TemperatureUnitEnum;
+
 public class Ki8360WriteCmd {
     public static final byte[] confirmUserAndMemoryCmd = new byte[]{0x02, 0x0a, 0x00, (byte) 0x80};
     public static final byte[] readNumberOfDataCmd = new byte[]{0x02, 0x01, 0x00, 0x6c};
@@ -24,4 +28,71 @@ public class Ki8360WriteCmd {
 
     public static final byte[] writeTemperatureUnitCmd = new byte[]{0x03, 0x01, 0x00, 0x6b,
             0x01};
+
+    public static byte[] getConfirmUserAndMemoryCmd() {
+        return Ki8360WriteCmd.confirmUserAndMemoryCmd;
+    }
+
+    public static byte[] getConfirmNumberOfDataCmd(int user) {
+        return commandForConfirmNumberOfData(user);
+    }
+
+    public static byte[] getReadDataCmd(int dataIndex) {
+        return commandForReadData(dataIndex);
+    }
+
+    public static byte[] getClearDataCmd() {
+        return Ki8360WriteCmd.clearDataCmd;
+    }
+
+    public static byte[] getWriteClockTimeAndEnabledPreCommand (ClockTimeFormat time) {
+        byte[] command = Ki8360WriteCmd.writeClockTimeAndFlagPreCmd;
+        command[4] = (byte) (time.year - 2000);
+        command[5] = (byte) time.month;
+        command[6] = (byte) time.day;
+        command[7] = (byte) time.hour;
+        return command;
+    }
+
+    public static byte[] getWriteClockTimeAndEnabledPostCommand (ClockTimeFormat time, boolean enabled) {
+        byte[] command = Ki8360WriteCmd.writeClockTimeAndFlagPostCmd;
+        command[4] = (byte) time.minute;
+        command[5] = (byte) time.second;
+        command[6] = (byte) (enabled ? 0x01 : 0x00);
+        return command;
+    }
+
+    public static byte[] getWriteReminderClockTimeAndEnabledCommand (ReminderTimeFormat time, boolean enabled) {
+        byte[] command = Ki8360WriteCmd.writeReminderClockTimeAndFlagCmd;
+        command[6] = (byte) (time.hour + (enabled ? 0x80 : 0x00));
+        command[7] = (byte) time.minute;
+        return command;
+    }
+
+    public static byte[] getWriteTemperatureUnitCmdCommand (TemperatureUnitEnum unit) {
+        byte[] command = Ki8360WriteCmd.writeTemperatureUnitCmd;
+        byte unitByte = 0x00;
+        switch (unit) {
+            case C:
+                unitByte = 0x00;
+                break;
+            case F:
+                unitByte = 0x01;
+                break;
+        }
+        command[4] = unitByte;
+        return command;
+    }
+
+    private static byte[] commandForConfirmNumberOfData (int user) {
+        byte[] command = Ki8360WriteCmd.readNumberOfDataCmd;
+        command[3] = (byte) (0x6c + (user - 1) * 2);
+        return command;
+    }
+
+    private static byte[] commandForReadData (int dataIndex) {
+        byte[] command = Ki8360WriteCmd.readDataCmd;
+        command[3] = (byte) (0xa8 + dataIndex * 0x08);
+        return command;
+    }
 }

@@ -8,10 +8,12 @@ import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothGattDescriptor;
 import android.bluetooth.BluetoothGattService;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 
 public class BLEService extends Service {
     private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private BluetoothManager bluetoothManager;
     private final BluetoothLeScanner bluetoothLeScanner = bluetoothAdapter.getBluetoothLeScanner();
     private final LeDeviceListAdapter scannedDeviceListAdapter = new LeDeviceListAdapter();
     private final LeDeviceListAdapter connectingDeviceListAdapter = new LeDeviceListAdapter();
@@ -58,6 +61,7 @@ public class BLEService extends Service {
     private BLE_CMD cmd;
 
     Kjump8360 kjump8360;
+
 
     @Override
     public void onCreate () {
@@ -161,18 +165,17 @@ public class BLEService extends Service {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices();
                 // successfully connected to the GATT Server
-                Log.d("test8360", gatt.getDevice().getName() + " STATE_CONNECTED");
                 onProgressListener.onConnected();
                 connectionState = STATE_CONNECTED;
                 broadcastUpdate(ACTION_GATT_CONNECTED);
 
                 // init kjump8360
-                kjump8360 = new Kjump8360(gatt, kjump8360Callback);
+                bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                kjump8360 = new Kjump8360(gatt, kjump8360Callback, bluetoothManager);
                 // add device in connecting devices
                 connectingDeviceListAdapter.addDevice(gatt.getDevice());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 // disconnected from the GATT Server
-                Log.d("test8360", gatt.getDevice().getName() + " STATE_DISCONNECTED");
                 onProgressListener.onDisConnected();
                 connectionState = STATE_DISCONNECTED;
                 broadcastUpdate(ACTION_GATT_DISCONNECTED);
@@ -399,7 +402,7 @@ public class BLEService extends Service {
                         + day + ", hour = " + hour + ", minute = " + minute + ", sensePosition = "
                         + sensePosition + ", Temperature = " + Temperature);
             } else {
-                Log.d("test8360", "LastMemory is null.");
+                Log.d("test8360", "Don't have last memory.");
             }
         }
 
