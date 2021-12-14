@@ -13,8 +13,8 @@ public class Ki8360WriteCmd {
             0x05, 0x06, 0x01}; // 年月日時分秒enable
 
     // reminder
-    public static final byte[] writeReminderClockTimeAndFlagCmd = new byte[]{0x03, 0x03, 0x00, 0x5e,
-            0x01, 0x02}; // enable時分
+    public static final byte[] writeReminderClockTimeAndFlagCmd = new byte[]{0x03, 0x03, 0x00, 0x5c,
+            0x00, 0x00, 0x01, 0x02}; // enable時分
 
 
     public static final byte[] refreshDeviceCmd = new byte[]{0x03, 0x01, 0x00, 0x64,
