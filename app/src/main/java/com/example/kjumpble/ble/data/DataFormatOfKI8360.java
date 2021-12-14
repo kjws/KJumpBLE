@@ -8,7 +8,7 @@ import com.example.kjumpble.ble.SensePositionEnum;
 
 import java.io.Serializable;
 
-public class DataFor8360 implements Serializable {
+public class DataFormatOfKI8360 {
     public int Year;
     public int Month;
     public int Day;
@@ -17,7 +17,7 @@ public class DataFor8360 implements Serializable {
     public int SensePosition;
     public float Temperature;
 
-    public DataFor8360 (byte[] data) {
+    public DataFormatOfKI8360 (byte[] data) {
         Year = 2000 + data[1];
         Month = data[2];
         Day = data[3];
@@ -26,7 +26,7 @@ public class DataFor8360 implements Serializable {
         SensePosition = calSensePosition(data[6]);
         Temperature = (float) (((data[7] & 0xff) * 256 + (data[8] & 0xff)) / 100.0);
 
-        logAll();
+//        logAll();
     }
 
     private int calSensePosition (byte data) {
@@ -49,23 +49,5 @@ public class DataFor8360 implements Serializable {
         Log.d("test8360", "Minute = " + Minute);
         Log.d("test8360", "SensePosition = " + SensePosition);
         Log.d("test8360", "Temperature = " + Temperature);
-    }
-
-    private int mData;
-
-    // this is used to regenerate your object. All Parcelables must have a CREATOR that implements these two methods
-    public static final Parcelable.Creator<DataFor8360> CREATOR = new Parcelable.Creator<DataFor8360>() {
-        public DataFor8360 createFromParcel(Parcel in) {
-            return new DataFor8360(in);
-        }
-
-        public DataFor8360[] newArray(int size) {
-            return new DataFor8360[size];
-        }
-    };
-
-    // example constructor that takes a Parcel and gives you an object populated with it's values
-    private DataFor8360(Parcel in) {
-        mData = in.readInt();
     }
 }
