@@ -21,12 +21,15 @@ import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.CheckBLEScan;
 import com.example.kjumpble.ble.CheckLocationStatus;
 import com.example.kjumpble.ble.callback.OnProgressListener;
+import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
-import com.example.kjumpble.ble.timeFormat.TemperatureUnitEnum;
+import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.util.MyPermissions;
 import com.example.kjumpble.permission.PermissionRequestCode;
-import com.kjump.kjumpsdk.Kjump8360;
+
+import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     private BLEService bleService;
@@ -42,9 +45,10 @@ public class MainActivity extends AppCompatActivity {
 
     private Button writeReminderClockTimeAndFlagButton;
 
-    private Button initDeviceButton;
+    private Button setDeviceButton;
 
     private Button writeTemperatureUnitButton;
+
 
     private TextView bleStatusTextView;
 
@@ -87,12 +91,15 @@ public class MainActivity extends AppCompatActivity {
         writeReminderClockTimeAndFlagButton.setOnClickListener(writeReminderClockTimeAndFlagButtonOnClickListener);
 
         // init device
-        initDeviceButton = findViewById(R.id.InitDeviceButton);
-        initDeviceButton.setOnClickListener(initDeviceButtonOnClickListener);
+        setDeviceButton = findViewById(R.id.SetDeviceButton);
+        setDeviceButton.setOnClickListener(setDeviceButtonOnClickListener);
 
         // Temperature Unit
         writeTemperatureUnitButton = findViewById(R.id.writeTemperatureUnit);
         writeTemperatureUnitButton.setOnClickListener(writeTemperatureUnitOnClickListener);
+
+
+
 
         bleStatusTextView = findViewById(R.id.bleStatusTextView);
 
@@ -173,9 +180,9 @@ public class MainActivity extends AppCompatActivity {
         bleService.writeCommand(BLE_CLIENT_CMD.ClearAllDataCmd);
     };
 
-    private static final ClockTimeFormat testClockTime = new ClockTimeFormat(2021, 12, 9, 10, 5, 40);
-    private static final ReminderTimeFormat testReminderClockTime = new ReminderTimeFormat(10, 6);
-    private static final TemperatureUnitEnum testTemperatureUnit = TemperatureUnitEnum.C;
+    private static final ClockTimeFormat testClockTime = new ClockTimeFormat(2003, 11, 30, 23, 58, 55);
+    private static final ReminderTimeFormat testReminderClockTime = new ReminderTimeFormat(21, 17);
+    private static final TemperatureUnitEnum testTemperatureUnit = TemperatureUnitEnum.F;
     private static final boolean testEnable = true;
     // Clock
     private final View.OnClickListener writeClockTimeAndFlagButtonOnClickListener = v -> {
@@ -188,13 +195,51 @@ public class MainActivity extends AppCompatActivity {
     };
 
     // Init
-    private final View.OnClickListener initDeviceButtonOnClickListener = v -> {
-        bleService.writeInitDevice();
+    private final View.OnClickListener setDeviceButtonOnClickListener = v -> {
+        bleService.writeSetDevice();
     };
 
     // Unit
     private final View.OnClickListener writeTemperatureUnitOnClickListener = v -> {
         bleService.writeTemperatureUnit(testTemperatureUnit);
+    };
+
+    // Write reminder time
+    private final ArrayList<ReminderFormat> reminder = new ArrayList<> () {{
+            add(new ReminderFormat(false, 7, 3));
+            add(new ReminderFormat(false, 11, 4));
+            add(new ReminderFormat(false, 15, 7));
+            add(new ReminderFormat(false, 19, 9));
+        }
+    };
+
+    private final View.OnClickListener writeKPReminderOnClickListener = v -> {
+        bleService.setKPReminder(reminder);
+    };
+
+    // Write time
+    private HourFormat hourFormat = HourFormat.is12;
+    private boolean ambient = true;
+    private boolean clockShowFlag = true;
+    private final View.OnClickListener writeKPTimeOnClickListener = v -> {
+        bleService.setKPTime(reminder, ambient, testTemperatureUnit, hourFormat, clockShowFlag);
+    };
+
+    private final View.OnClickListener readNumberOfMemoryOnClickListener = v -> {
+        bleService.readKPNumberOfMemory();
+    };
+
+    private int dataIndex = 0;
+    private final View.OnClickListener readMemoryOnClickListener = v -> {
+        bleService.readKPMemory(dataIndex);
+    };
+
+    private final View.OnClickListener kpStartSenseOnClickListener = v -> {
+        bleService.kpStartSense();
+    };
+
+    private final View.OnClickListener kpStopSenseOnClickListener = v -> {
+        bleService.kpStopSense();
     };
 
     private final OnProgressListener onProgressListener = new OnProgressListener() {
@@ -215,7 +260,40 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onConnected () {
-            activity.runOnUiThread(() -> bleStatusTextView.setText(R.string.connecting));
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run () {
+                    bleStatusTextView.setText(R.string.connecting);
+                    activity.setContentView(R.layout.kplayout);
+
+                    // kp
+                    Button readNumberOfMemoryButton;
+                    Button readMemoryButton;
+                    Button setKPReminderButton;
+                    Button setKPTimeButton;
+                    Button kpStartSenseButton;
+                    Button kpStopSenseButton;
+                    // kp
+
+                    readNumberOfMemoryButton = findViewById(R.id.readNumberOfMemoryButton);
+                    readNumberOfMemoryButton.setOnClickListener(readNumberOfMemoryOnClickListener);
+
+                    readMemoryButton = findViewById(R.id.readMemoryButton);
+                    readMemoryButton.setOnClickListener(readMemoryOnClickListener);
+
+                    setKPReminderButton = findViewById(R.id.writeKPReminderButton);
+                    setKPReminderButton.setOnClickListener(writeKPReminderOnClickListener);
+
+                    setKPTimeButton = findViewById(R.id.writeKPTimeButton);
+                    setKPTimeButton.setOnClickListener(writeKPTimeOnClickListener);
+
+                    kpStartSenseButton = findViewById(R.id.startSenseButton);
+                    kpStartSenseButton.setOnClickListener(kpStartSenseOnClickListener);
+
+                    kpStopSenseButton = findViewById(R.id.stopSenseButton);
+                    kpStopSenseButton.setOnClickListener(kpStopSenseOnClickListener);
+                }
+            });
         }
 
         @Override
