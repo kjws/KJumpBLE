@@ -1,5 +1,7 @@
 package com.example.kjumpble.ble.data.KP.memory;
 
+import android.util.Log;
+
 import com.example.kjumpble.ble.format.KP.BloodPressure;
 import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPTemperature;
@@ -8,7 +10,11 @@ import java.util.Calendar;
 
 public class KPMemoryFilter {
     public KPMemory getKpMemory (String name, byte[] data) {
-        if (!(data[0] == 0x2d || data[0] == 0x2a) && data[6] == 0x41) {
+        if (data[0] == 0x21 & data[1] == 0x55 & data[2] == (byte) 0xAA) {
+            return null;
+        }
+        else if (!((data[0] == 0x2d || data[0] == 0x2a) && data[6] == 0x41)) {
+            Log.d("KP", "Data is invalid");
             return null;
         }
 
@@ -29,7 +35,7 @@ public class KPMemoryFilter {
     private Calendar setTime(String name, byte[] data) {
         Calendar time = Calendar.getInstance();;
         time.set(Calendar.YEAR, name.equals("KP-6525") ? data[11] + 100 : 0);
-        time.set(Calendar.MONTH, data[9] - 1);
+        time.set(Calendar.MONTH, data[9]);
         time.set(Calendar.DAY_OF_MONTH, data[3]);
         time.set(Calendar.HOUR, data[5]);
         time.set(Calendar.MINUTE, data[7]);

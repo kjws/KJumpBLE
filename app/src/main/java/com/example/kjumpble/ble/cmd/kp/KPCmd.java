@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.kjumpble.ble.callback.GattCallback;
 import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 
@@ -25,10 +26,6 @@ public class KPCmd {
         return KPCmdCalculator.getTimeBytes(reminders, Ambient, unit, hourFormat, clockShowFlag);
     }
 
-    public byte[] getClearDataCommand () {
-        return KPCmdCalculator.getClearDataBytes();
-    }
-
     public static byte[] getReadMemoryCommand(int index) {
         return KPCmdCalculator.getReadMemoryBytes(index);
     }
@@ -43,5 +40,13 @@ public class KPCmd {
 
     public static byte[] getStopSenseCommand() {
         return KPCmdCalculator.getStopSenseBytes();
+    }
+
+    public static byte[] getChangeModeCommand(SenseMode mode) {
+        return KPCmdCalculator.getChangeModeBytes(mode);
+    }
+
+    public static byte[] getClearMemoryCommand() {
+        return KPCmdCalculator.getClearMemoryBytes();
     }
 }

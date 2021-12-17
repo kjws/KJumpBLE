@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.example.kjumpble.ble.LeConnectStatus;
 import com.example.kjumpble.ble.callback.KjumpKPCallback;
+import com.example.kjumpble.ble.callback.kp.KPTimerCallBack;
 import com.example.kjumpble.ble.cmd.kp.KPCmd;
 import com.example.kjumpble.ble.cmd.kp.KPDesCmd;
 import com.example.kjumpble.ble.cmd.kp.KPInnerCmd;
@@ -15,19 +16,17 @@ import com.example.kjumpble.ble.data.KP.user.KPUserFilter;
 import com.example.kjumpble.ble.format.HourFormat;
 import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPUser;
-import com.example.kjumpble.ble.format.KP.SenseTimerStructure;
+import com.example.kjumpble.ble.SenseTimer;
+import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 import com.example.kjumpble.util.BLEUtil;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class KjumpKP {
     static final String TAG = KjumpKP.class.getSimpleName();
-
     private final KjumpKPCallback kjumpKPCallback;
     public BluetoothGatt gatt;
     private final BluetoothManager bluetoothManager;
@@ -40,12 +39,13 @@ public class KjumpKP {
 
     KPInnerCmd innerCmd;
     // Sense Timer
-    SenseTimerStructure senseTimer;
+    SenseTimer senseTimer;
 
     public KjumpKP (BluetoothGatt gatt, KjumpKPCallback kjumpKPCallback, BluetoothManager bluetoothManager) {
         this.gatt = gatt;
         this.kjumpKPCallback = kjumpKPCallback;
         this.bluetoothManager = bluetoothManager;
+        senseTimer = new SenseTimer(timerCallBack);
     }
 
     private void dataInit () {
@@ -54,7 +54,6 @@ public class KjumpKP {
 //        numberOfData = 0;
 //        user = 0;
 //        dataStartPosition = 0;
-        senseTimer = new SenseTimerStructure();
         beWroteCharacteristic = gatt.getService(KjumpUUIDList.KJUMP_CHARACTERISTIC_CONFIG_UUID).getCharacteristic(KjumpUUIDList.KJUMP_CHARACTERISTIC_WRITE_UUID);
     }
 
@@ -62,8 +61,7 @@ public class KjumpKP {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
-//        bleClientCmd = BLE_CLIENT_CMD.ReadNumberOfDataCmd;
-//        cmd = BLE_CMD.CONFIRM_USER_AND_MEMORY;
+        destinyCommand = KPDesCmd.Set_Device;
         writeCharacteristic(KPCmd.getWriteReminderCommand(reminders));
     }
 
@@ -71,8 +69,7 @@ public class KjumpKP {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
-//        bleClientCmd = BLE_CLIENT_CMD.ReadNumberOfDataCmd;
-//        cmd = BLE_CMD.CONFIRM_USER_AND_MEMORY;
+        destinyCommand = KPDesCmd.Set_Device;
         writeCharacteristic(KPCmd.getWriteTimeCommand(reminders, Ambient, unit, hourFormat, clockShowFlag));
     }
 
@@ -114,6 +111,22 @@ public class KjumpKP {
         writeCharacteristic(KPCmd.getStopSenseCommand());
     }
 
+    public void kpChangeMode (SenseMode mode) {
+        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
+            return;
+        dataInit();
+        destinyCommand = KPDesCmd.Change_Mode;
+        writeCharacteristic(KPCmd.getChangeModeCommand(mode));
+    }
+
+    public void clearMemory () {
+        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
+            return;
+        dataInit();
+        destinyCommand = KPDesCmd.Clear_Memory;
+        writeCharacteristic(KPCmd.getClearMemoryCommand());
+    }
+
     private void writeCharacteristic (byte[] command) {
         beWroteCharacteristic.setValue(command);
         gatt.writeCharacteristic(beWroteCharacteristic);
@@ -122,40 +135,65 @@ public class KjumpKP {
     public void onCharacteristicChanged (BluetoothGattCharacteristic characteristic) {
         byte[] data = characteristic.getValue();
         switch (destinyCommand) {
-            case Read_Memory_At_Index:
+            case Read_Memory_At_Index: {
                 KPMemory kpMemory = new KPMemoryFilter().getKpMemory(gatt.getDevice().getName(), data);
-                // null
-                if (kpMemory == null) {
-
-                }
-                // 有資料
-                else {
-
+                if (kpMemory != null) {
+                    kjumpKPCallback.onGetMemory(kpMemory);
                 }
                 break;
+            }
             case Read_Number_Of_Memory:
                 KPUser kpUser = new KPUserFilter().getKPUser(data);
-                // null
-                if (kpUser == null) {
-
-                }
-                // 有資料
-                else {
-
+                if (kpUser != null) {
+                    kjumpKPCallback.onGetUser(kpUser);
                 }
                 break;
+            case Start_Sense:
+                break;
+            case Stop_Sense: {
+                KPMemory kpMemory = new KPMemoryFilter().getKpMemory(gatt.getDevice().getName(), data);
+                if (kpMemory != null) {
+                    destinyCommand = KPDesCmd.Nothing;
+                    kjumpKPCallback.onFinishedSense(kpMemory);
+                }
+                break;
+            }
         }
+        // 讓 timer 知道每次收到的characteristicChanged，藉此判斷是不是正在量測
         if (senseTimer != null) {
             if (senseTimer.isSensing(data)) {
-                int Systolic = 0;
-                for (int i = data.length - 5; i < data.length - 2; i++) {
-                    if ((data[i] == (byte) 0xFE) & data[i + 2] != (byte) 0xFE) {
-                        Systolic = data[i + 1] + data[i + 2] * 256;
-                        break;
-                    }
-                }
-                kjumpKPCallback.onSensing(Systolic);
+                kjumpKPCallback.onSensing(true, getSensingSystolic(data));
             }
         }
     }
+
+    private int getSensingSystolic(byte[] data) {
+        int Systolic = 0;
+        for (int i = data.length - 5; i < data.length - 2; i++) {
+            if ((data[i] == (byte) 0xFE) & data[i + 2] != (byte) 0xFE) {
+                Systolic = data[i + 1] + data[i + 2] * 256;
+                break;
+            }
+        }
+        return Systolic;
+    }
+
+    // 由Timer判斷現在量測狀態
+    private final KPTimerCallBack timerCallBack = new KPTimerCallBack() {
+        @Override
+        public void onStartSense () {
+            super.onStartSense();
+
+            destinyCommand = KPDesCmd.Start_Sense;
+            kjumpKPCallback.onStartSense();
+        }
+
+        @Override
+        public void onStopSense () {
+            super.onStopSense();
+
+            destinyCommand = KPDesCmd.Stop_Sense;
+            kjumpKPCallback.onStopSense();
+        }
+    };
 }

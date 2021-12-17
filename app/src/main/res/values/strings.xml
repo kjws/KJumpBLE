@@ -39,4 +39,6 @@
 
     <string name="start_kp_sense">Start sense</string>
     <string name="stop_kp_sense">Stop sense</string>
+    <string name="kp_clear_memory">clear memory</string>
+    <string name="kp_change_mode">change mode</string>
 </resources>

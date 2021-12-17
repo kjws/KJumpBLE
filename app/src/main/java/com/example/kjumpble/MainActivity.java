@@ -22,6 +22,7 @@ import com.example.kjumpble.ble.CheckBLEScan;
 import com.example.kjumpble.ble.CheckLocationStatus;
 import com.example.kjumpble.ble.callback.OnProgressListener;
 import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
@@ -229,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
         bleService.readKPNumberOfMemory();
     };
 
-    private int dataIndex = 0;
+    private final int dataIndex = 19;
     private final View.OnClickListener readMemoryOnClickListener = v -> {
         bleService.readKPMemory(dataIndex);
     };
@@ -240,6 +241,15 @@ public class MainActivity extends AppCompatActivity {
 
     private final View.OnClickListener kpStopSenseOnClickListener = v -> {
         bleService.kpStopSense();
+    };
+
+    private final View.OnClickListener kpClearMemoryOnClickListener = v -> {
+        bleService.kpClearMemory();
+    };
+
+    private final SenseMode mode = SenseMode.KP;
+    private final View.OnClickListener kpChangeModeOnClickListener = v -> {
+        bleService.kpChangeMode(mode);
     };
 
     private final OnProgressListener onProgressListener = new OnProgressListener() {
@@ -273,6 +283,8 @@ public class MainActivity extends AppCompatActivity {
                     Button setKPTimeButton;
                     Button kpStartSenseButton;
                     Button kpStopSenseButton;
+                    Button kpClearMemoryButton;
+                    Button kpChangeModeButton;
                     // kp
 
                     readNumberOfMemoryButton = findViewById(R.id.readNumberOfMemoryButton);
@@ -292,6 +304,13 @@ public class MainActivity extends AppCompatActivity {
 
                     kpStopSenseButton = findViewById(R.id.stopSenseButton);
                     kpStopSenseButton.setOnClickListener(kpStopSenseOnClickListener);
+
+                    kpClearMemoryButton = findViewById(R.id.kpclearMemoryButton);
+                    kpClearMemoryButton.setOnClickListener(kpClearMemoryOnClickListener);
+
+                    kpChangeModeButton = findViewById(R.id.changeModeButton);
+                    kpChangeModeButton.setOnClickListener(kpChangeModeOnClickListener);
+
                 }
             });
         }

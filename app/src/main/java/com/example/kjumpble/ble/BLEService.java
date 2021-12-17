@@ -23,6 +23,9 @@ import android.util.Log;
 import com.example.kjumpble.ble.callback.KjumpKI8360Callback;
 import com.example.kjumpble.ble.callback.KjumpKPCallback;
 import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.KP.KPMemory;
+import com.example.kjumpble.ble.format.KP.KPUser;
+import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.main.KjumpKI8360;
 import com.example.kjumpble.ble.main.KjumpKP;
@@ -444,6 +447,26 @@ public class BLEService extends Service {
         }
         kjumpKP.kpStopSense();
     }
+
+    public void kpClearMemory () {
+        if (kjumpKP == null)
+            return;
+        if (kjumpKP.gatt == null) {
+            Log.w("testKP", "BluetoothGatt not initialized");
+            return;
+        }
+        kjumpKP.clearMemory();
+    }
+
+    public void kpChangeMode (SenseMode mode) {
+        if (kjumpKP == null)
+            return;
+        if (kjumpKP.gatt == null) {
+            Log.w("testKP", "BluetoothGatt not initialized");
+            return;
+        }
+        kjumpKP.kpChangeMode(mode);
+    }
     /**
      * Callback for ki-8360.
      * Each data will be received here.
@@ -566,15 +589,41 @@ public class BLEService extends Service {
         }
 
         @Override
-        public void onStartSense () {
-            super.onStartSense();
+        public void onGetMemory (KPMemory kpMemory) {
+            super.onGetMemory(kpMemory);
         }
 
         @Override
-        public void onSensing (int systolic) {
-            super.onSensing(systolic);
+        public void onGetUser (KPUser kpUser) {
+            super.onGetUser(kpUser);
+        }
 
+        @Override
+        public void onSensing (boolean enabled, int systolic) {
+            super.onSensing(enabled, systolic);
+            Log.d("test8360", "onSensing.enabled = " + enabled);
             Log.d("test8360", "onSensing.Systolic = " + systolic);
+        }
+
+        @Override
+        public void onStartSense () {
+            super.onStartSense();
+
+            Log.d("test8360", "onStartSense");
+        }
+
+        @Override
+        public void onStopSense () {
+            super.onStopSense();
+
+            Log.d("test8360", "onStopSense");
+        }
+
+        @Override
+        public void onFinishedSense (KPMemory kpMemory) {
+            super.onFinishedSense(kpMemory);
+
+            Log.d("test8360", "onFinishedSense = " + kpMemory);
         }
     };
 }

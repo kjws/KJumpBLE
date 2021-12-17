@@ -1,8 +1,7 @@
 package com.example.kjumpble.ble.cmd.kp;
 
-import android.util.Log;
-
 import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 
@@ -12,13 +11,15 @@ import java.util.Calendar;
 public class KPCmdCalculator {
     private final static byte[] writeReminderTimeCmd = new byte[] {0x2c, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, (byte) 0x99, 0x00};
     private final static byte[] writeTimeCmd = new byte[] {0x2c, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, (byte) 0x88, 0x00};
-    private final static byte[] clearDataCmd = new byte[] {0x2c, 0x00, 0x00, 0x0c, 0x00, 0x00, 0x00, 0x00, (byte) 0xee, 0x00};
+    private final static byte[] clearMemoryCmd = new byte[] {0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xee, 0x00};
     private final static byte[] readMemoryCmd = new byte[] {0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xdd, 0x00};
     private final static byte[] readMemorySizeCmd = new byte[] {0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xcc, 0x00};
+    private final static byte[] deleteMemoryCmd = new byte[] {0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x32, 0x00};
     private final static byte[] startCmd = new byte[] {0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x32, 0x00};
     private final static byte[] stopCmd = new byte[] {0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x31, 0x00};
     private final static byte[] changeModeCmd = new byte[] {0x2c, 0x00, 0x36, 0x01, 0x00, 0x00, 0x00, 0x00, (byte) 0xae, 0x00};
     private final static byte[] readNumberOfUserCmd = new byte[] {0x2c, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xca, 0x00};
+
     public static byte[] getReminderBytes (ArrayList<ReminderFormat> reminders) {
         byte[] bytes = writeReminderTimeCmd;
         bytes[1] = (byte) reminders.get(0).getHour();
@@ -46,10 +47,6 @@ public class KPCmdCalculator {
         return getCommand(bytes);
     }
 
-    public static byte[] getClearDataBytes () {
-        return getCommand(clearDataCmd);
-    }
-
     public static byte[] getReadMemoryBytes (int index) {
         byte[] bytes = readMemoryCmd;
         bytes[1] = (byte) index;
@@ -66,6 +63,16 @@ public class KPCmdCalculator {
 
     public static byte[] getStopSenseBytes () {
         return getCommand(stopCmd);
+    }
+
+    public static byte[] getChangeModeBytes (SenseMode mode) {
+        byte[] bytes = changeModeCmd;
+        bytes[4] = (byte) mode.ordinal();
+        return getCommand(bytes);
+    }
+
+    public static byte[] getClearMemoryBytes () {
+        return getCommand(clearMemoryCmd);
     }
 
     private static byte[] getCommand(byte[] bytes) {
