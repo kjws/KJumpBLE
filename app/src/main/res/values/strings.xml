@@ -27,5 +27,16 @@
 
     <string name="write_temperature_unit">Write temperature unit</string>
 
-    <string name="init_device">Init Device</string>
+    <string name="set_device">Set Device</string>
+
+
+
+<!--    kp    -->
+    <string name="read_kp_memory">Read kp memory</string>
+    <string name="read_number_of_memory">Read number of memory</string>
+    <string name="write_kp_reminder">Write KP reminder</string>
+    <string name="write_kp_time">Write KP time</string>
+
+    <string name="start_kp_sense">Start sense</string>
+    <string name="stop_kp_sense">Stop sense</string>
 </resources>
