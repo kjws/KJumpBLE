@@ -54,4 +54,13 @@ public class Helper {
         }
         return return_Str;
     }
+
+    public static byte[] mergeBytes(int resPos, byte[] res, byte[] des) {
+        for (int i = 0; i < des.length; i++) {
+            if (res.length - resPos > i) {
+                res[resPos + i] = des[i];
+            }
+        }
+        return res;
+    }
 }
