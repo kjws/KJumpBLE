@@ -4,7 +4,7 @@ import com.example.kjumpble.ble.data.DataFormatOfKI8360;
 
 import java.util.ArrayList;
 
-public abstract class Kjump8360Callback {
+public abstract class KjumpKI8360Callback {
     public void onGetNumberOfData (int number) {
 
     }
@@ -29,11 +29,15 @@ public abstract class Kjump8360Callback {
 
     }
 
+    public void onWriteReminderClockFinished (boolean success) {
+
+    }
+
     public void onWriteUnitFinished (boolean success) {
 
     }
 
-    public void onInitDeviceFinished (boolean success) {
+    public void onSetDeviceFinished (boolean success) {
 
     }
 }
