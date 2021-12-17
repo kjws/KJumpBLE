@@ -1,4 +1,4 @@
-package com.example.kjumpble.ble.timeFormat;
+package com.example.kjumpble.ble.format;
 
 public enum TemperatureUnitEnum {
     C,

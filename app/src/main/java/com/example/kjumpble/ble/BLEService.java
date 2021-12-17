@@ -20,16 +20,21 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.kjumpble.ble.callback.KjumpKI8360Callback;
+import com.example.kjumpble.ble.callback.KjumpKPCallback;
+import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.ReminderFormat;
+import com.example.kjumpble.ble.main.KjumpKI8360;
+import com.example.kjumpble.ble.main.KjumpKP;
 import com.example.kjumpble.util.Helper;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
-import com.example.kjumpble.ble.callback.Kjump8360Callback;
 import com.example.kjumpble.ble.callback.OnProgressListener;
 import com.example.kjumpble.ble.data.DataFormatOfKI8360;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
-import com.example.kjumpble.ble.timeFormat.TemperatureUnitEnum;
-import com.example.kjumpble.ble.uuid.KI8360UUIDList;
+import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 
 import java.util.ArrayList;
 
@@ -60,7 +65,8 @@ public class BLEService extends Service {
 
     private BLE_CMD cmd;
 
-    Kjump8360 kjump8360;
+    KjumpKP kjumpKP;
+    KjumpKI8360 kjumpKI8360;
 
 
     @Override
@@ -143,6 +149,9 @@ public class BLEService extends Service {
             if (device.getName().equals("KI-8360")) {
                 connect(device.getAddress());
             }
+            else if (device.getName().contains("KP")) {
+                connect(device.getAddress());
+            }
         }
     }
 
@@ -170,11 +179,20 @@ public class BLEService extends Service {
                 broadcastUpdate(ACTION_GATT_CONNECTED);
 
                 // init kjump8360
-                bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-                kjump8360 = new Kjump8360(gatt, kjump8360Callback, bluetoothManager);
+                Log.d("testService", "connected");
+                if (gatt.getDevice().getName().equals("KI-8360")) {
+                    bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                    kjumpKI8360 = new KjumpKI8360(gatt, kjumpKI8360Callback, bluetoothManager);
+                }
+                else if (gatt.getDevice().getName().contains("KP")) {
+                    bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                    kjumpKP = new KjumpKP(gatt, kjumpKPCallback, bluetoothManager);
+                }
                 // add device in connecting devices
                 connectingDeviceListAdapter.addDevice(gatt.getDevice());
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                Log.d("testService", "disconnected");
+
                 // disconnected from the GATT Server
                 onProgressListener.onDisConnected();
                 connectionState = STATE_DISCONNECTED;
@@ -188,8 +206,8 @@ public class BLEService extends Service {
         @Override
         public void onServicesDiscovered (BluetoothGatt gatt, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                BluetoothGattService service = gatt.getService(KI8360UUIDList.KJUMP_CHARACTERISTIC_CONFIG_UUID);
-                BluetoothGattCharacteristic characteristic = service.getCharacteristic(KI8360UUIDList.KJUMP_CHARACTERISTIC_READ_UUID);
+                BluetoothGattService service = gatt.getService(KjumpUUIDList.KJUMP_CHARACTERISTIC_CONFIG_UUID);
+                BluetoothGattCharacteristic characteristic = service.getCharacteristic(KjumpUUIDList.KJUMP_CHARACTERISTIC_READ_UUID);
                 setCharacteristicNotification(characteristic, true);
 
                 broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
@@ -203,7 +221,10 @@ public class BLEService extends Service {
             super.onCharacteristicChanged(gatt, characteristic);
 
             Log.w("test8360", "onCharacteristicChanged = " + Helper.getHexStr(characteristic.getValue()));
-            kjump8360.onCharacteristicChanged(characteristic);
+            if (kjumpKI8360 != null)
+                kjumpKI8360.onCharacteristicChanged(characteristic);
+            if (kjumpKP != null)
+                kjumpKP.onCharacteristicChanged(characteristic);
         }
 
         @Override
@@ -232,13 +253,13 @@ public class BLEService extends Service {
     }
 
     public void readCharacteristic (BluetoothGattCharacteristic characteristic) {
-        if (kjump8360 == null)
+        if (kjumpKI8360 == null)
             return;
-        if (kjump8360.gatt == null) {
+        if (kjumpKI8360.gatt == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
-        kjump8360.gatt.readCharacteristic(characteristic);
+        kjumpKI8360.gatt.readCharacteristic(characteristic);
     }
 
     /**
@@ -247,18 +268,21 @@ public class BLEService extends Service {
      * @param enabled : Enable or disable notification.
      */
     private void setCharacteristicNotification (BluetoothGattCharacteristic characteristic, boolean enabled) {
-        if (kjump8360 == null) {
+        if (kjumpKI8360 == null && kjumpKP == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
-        if (kjump8360.gatt == null) {
-            return;
-        }
-        if (kjump8360.gatt.setCharacteristicNotification(characteristic, enabled)) {
+//        if (kjumpKI8360.gatt.setCharacteristicNotification(characteristic, enabled)) {
+//            Log.w("test8360", "Notification success");
+//            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(KjumpUUIDList.KJUMP_CHARACTERISTIC_DESCRIBE_UUID);
+//            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//            kjumpKI8360.gatt.writeDescriptor(descriptor);
+//        }
+        else if (kjumpKP.gatt.setCharacteristicNotification(characteristic, enabled)) {
             Log.w("test8360", "Notification success");
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(KI8360UUIDList.KJUMP_CHARACTERISTIC_DESCRIBE_UUID);
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(KjumpUUIDList.KJUMP_CHARACTERISTIC_DESCRIBE_UUID);
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            kjump8360.gatt.writeDescriptor(descriptor);
+            kjumpKP.gatt.writeDescriptor(descriptor);
         }
     }
 
@@ -272,29 +296,29 @@ public class BLEService extends Service {
      *             ClearAllDataCmd: To clear all data
      */
     public void writeCommand (BLE_CLIENT_CMD clientCmd) {
-        if (kjump8360 == null) {
+        if (kjumpKI8360 == null) {
             Log.w("test8360", "kjump8360 not initialized");
             return;
         }
-        if (kjump8360.gatt == null) {
+        if (kjumpKI8360.gatt == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
         switch (clientCmd) {
             case ReadUserAndMemoryCmd:
-                kjump8360.readUserIndex();
+                kjumpKI8360.readUserIndex();
                 break;
             case ReadNumberOfDataCmd:
-                kjump8360.readNumberOfData();
+                kjumpKI8360.readNumberOfData();
                 break;
             case ReadLatestMemoryCmd:
-                kjump8360.readLatestMemory();
+                kjumpKI8360.readLatestMemory();
                 break;
             case ReadAllMemoryCmd:
-                kjump8360.readAllMemory();
+                kjumpKI8360.readAllMemory();
                 break;
             case ClearAllDataCmd:
-                kjump8360.clearAllData();
+                kjumpKI8360.clearAllData();
                 break;
         }
     }
@@ -305,15 +329,15 @@ public class BLEService extends Service {
      * @param enabled : True if you want to show clock in your screen.
      */
     public void writeClockTimeAndShowFlag (ClockTimeFormat clock_time, boolean enabled) {
-        if (kjump8360 == null) {
+        if (kjumpKI8360 == null) {
             Log.w("test8360", "kjump8360 not initialized");
             return;
         }
-        if (kjump8360.gatt == null) {
+        if (kjumpKI8360.gatt == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
-        kjump8360.writeClockTimeAndShowFlag(clock_time, enabled);
+        kjumpKI8360.writeClockTimeAndShowFlag(clock_time, enabled);
     }
 
     /**
@@ -322,15 +346,15 @@ public class BLEService extends Service {
      * @param enabled : True if you want to enable reminder clock.
      */
     public void writeReminderClockTimeAndEnabled (ReminderTimeFormat reminder_clock_time, boolean enabled) {
-        if (kjump8360 == null) {
+        if (kjumpKI8360 == null) {
             Log.w("test8360", "kjump8360 not initialized");
             return;
         }
-        if (kjump8360.gatt == null) {
+        if (kjumpKI8360.gatt == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
-        kjump8360.writeReminderClockTimeAndEnabled(reminder_clock_time, enabled);
+        kjumpKI8360.writeReminderClockTimeAndEnabled(reminder_clock_time, enabled);
     }
 
     /**
@@ -338,34 +362,93 @@ public class BLEService extends Service {
      * @param unit : C for Celsius, F for Fahrenheit.
      */
     public void writeTemperatureUnit (TemperatureUnitEnum unit) {
-        if (kjump8360 == null)
+        if (kjumpKI8360 == null)
             return;
-        if (kjump8360.gatt == null) {
+        if (kjumpKI8360.gatt == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
-        kjump8360.writeTemperatureUnit(unit);
+        kjumpKI8360.writeTemperatureUnit(unit);
     }
 
     /**
      * Init device
      * It must be done when you notify success so that you can work device normally.
      */
-    public void writeInitDevice () {
-        if (kjump8360 == null)
+    public void writeSetDevice () {
+        if (kjumpKI8360 == null)
             return;
-        if (kjump8360.gatt == null) {
+        if (kjumpKI8360.gatt == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
-        kjump8360.initDevice();
+        kjumpKI8360.setDevice();
     }
 
+    public void setKPReminder (ArrayList< ReminderFormat > reminders) {
+        if (kjumpKP == null)
+            return;
+        if (kjumpKP.gatt == null) {
+            Log.w("testKP", "BluetoothGatt not initialized");
+            return;
+        }
+        kjumpKP.setReminder(reminders);
+    }
+
+    public void setKPTime (ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnitEnum unit, HourFormat hourFormat, boolean clockShowFlag) {
+        if (kjumpKP == null)
+            return;
+        if (kjumpKP.gatt == null) {
+            Log.w("testKP", "BluetoothGatt not initialized");
+            return;
+        }
+        kjumpKP.setTime(reminders, Ambient, unit, hourFormat, clockShowFlag);
+    }
+
+    public void readKPMemory (int index) {
+        if (kjumpKP == null)
+            return;
+        if (kjumpKP.gatt == null) {
+            Log.w("testKP", "BluetoothGatt not initialized");
+            return;
+        }
+        kjumpKP.readMemory(index);
+    }
+
+    public void readKPNumberOfMemory () {
+        if (kjumpKP == null)
+            return;
+        if (kjumpKP.gatt == null) {
+            Log.w("testKP", "BluetoothGatt not initialized");
+            return;
+        }
+        kjumpKP.readNumberOfMemory();
+    }
+
+    public void kpStartSense () {
+        if (kjumpKP == null)
+            return;
+        if (kjumpKP.gatt == null) {
+            Log.w("testKP", "BluetoothGatt not initialized");
+            return;
+        }
+        kjumpKP.kpStartSense();
+    }
+
+    public void kpStopSense () {
+        if (kjumpKP == null)
+            return;
+        if (kjumpKP.gatt == null) {
+            Log.w("testKP", "BluetoothGatt not initialized");
+            return;
+        }
+        kjumpKP.kpStopSense();
+    }
     /**
      * Callback for ki-8360.
      * Each data will be received here.
      */
-    private final Kjump8360Callback kjump8360Callback = new Kjump8360Callback() {
+    private final KjumpKI8360Callback kjumpKI8360Callback = new KjumpKI8360Callback() {
         // Get number of temperature data.
         @Override
         public void onGetNumberOfData (int number) {
@@ -450,6 +533,13 @@ public class BLEService extends Service {
             Log.d("test8360", "onWriteClockFinished = " + success);
         }
 
+        @Override
+        public void onWriteReminderClockFinished (boolean success) {
+            super.onWriteReminderClockFinished(success);
+
+            Log.d("test8360", "onWriteReminderClockFinished = " + success);
+        }
+
         //When you call writeTemperatureUnit (TemperatureUnitEnum unit) You will get response here.
         @Override
         public void onWriteUnitFinished (boolean success) {
@@ -459,8 +549,32 @@ public class BLEService extends Service {
         }
 
         @Override
-        public void onInitDeviceFinished (boolean success) {
-            super.onInitDeviceFinished(success);
+        public void onSetDeviceFinished (boolean success) {
+            super.onSetDeviceFinished(success);
+        }
+    };
+
+    private final KjumpKPCallback kjumpKPCallback = new KjumpKPCallback() {
+        @Override
+        public void onWriteTimeFinished (boolean success) {
+            super.onWriteTimeFinished(success);
+        }
+
+        @Override
+        public void onWriteReminderFinished (boolean success) {
+            super.onWriteReminderFinished(success);
+        }
+
+        @Override
+        public void onStartSense () {
+            super.onStartSense();
+        }
+
+        @Override
+        public void onSensing (int systolic) {
+            super.onSensing(systolic);
+
+            Log.d("test8360", "onSensing.Systolic = " + systolic);
         }
     };
 }
