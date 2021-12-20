@@ -11,7 +11,7 @@ import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.cmd.kd.KD2070Cmd;
 import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
-import com.example.kjumpble.ble.data.DataFormatOfKI8360;
+import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.ble.format.kd.KDTemperatureUnitAndHand;
@@ -32,7 +32,7 @@ public class KjumpKD2070 {
     BLE_CMD cmd;
     BLE_CLIENT_CMD bleClientCmd;
 
-    DataFormatOfKI8360 dataFormatOfKI8360;
+    DataFormatOfKD dataFormatOfKD;
     private int numberOfData = 0;
     // clock
     ClockTimeFormat clock_time;
@@ -219,7 +219,7 @@ public class KjumpKD2070 {
                     callBack.onGetNumberOfData(numberOfData);
                 break;
             case ReadIndexMemoryCmd:
-                callBack.onGetIndexMemory(indexOfData, dataFormatOfKI8360);
+                callBack.onGetIndexMemory(indexOfData, dataFormatOfKD);
                 break;
             case ClearAllDataCmd:
                 callBack.onClearAllDataFinished(true);
@@ -257,7 +257,7 @@ public class KjumpKD2070 {
      * @param characteristic characteristic
      */
     private void onGetReadData (BluetoothGattCharacteristic characteristic) {
-        dataFormatOfKI8360 = new DataFormatOfKI8360(characteristic.getValue());
+        dataFormatOfKD = new DataFormatOfKD(characteristic.getValue());
         switch (bleClientCmd) {
             case ReadIndexMemoryCmd:
                 sendCallback();
