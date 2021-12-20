@@ -10,5 +10,6 @@ public enum BLE_CLIENT_CMD {
     WriteClockCmd,
     WriteReminderCmd,
     WriteUnitCmd,
+    WriteHandCmd,
     WriteSetDeviceCmd,
 }

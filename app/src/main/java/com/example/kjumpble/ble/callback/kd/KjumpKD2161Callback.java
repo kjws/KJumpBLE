@@ -23,6 +23,10 @@ public class KjumpKD2161Callback {
 
     }
 
+    public void onWriteHandFinished (boolean success) {
+
+    }
+
     public void onWriteClockFinished (boolean success) {
 
     }

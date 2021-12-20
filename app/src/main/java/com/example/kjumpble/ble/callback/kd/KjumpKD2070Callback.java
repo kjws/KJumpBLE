@@ -21,7 +21,15 @@ public class KjumpKD2070Callback {
 
     }
 
+    public void onWriteClockFinished (boolean success) {
+
+    }
+
     public void onWriteUnitFinished (boolean success) {
+
+    }
+
+    public void onWriteHandFinished (boolean success) {
 
     }
 }

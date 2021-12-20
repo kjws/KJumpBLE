@@ -11,7 +11,7 @@ import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.callback.GattCallback;
 import com.example.kjumpble.ble.callback.KjumpKI8360Callback;
-import com.example.kjumpble.ble.cmd.Ki8360Cmd;
+import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
 import com.example.kjumpble.ble.data.DataFormatOfKI8360;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
@@ -29,6 +29,7 @@ public class KjumpKI8360 implements GattCallback {
 
     public BluetoothGatt gatt;
     private final BluetoothManager bluetoothManager;
+    int maxNumberOfData = 0;
     byte dataStartPosition = 0;
     int user = 0;
     int numberOfData = 0;
@@ -323,6 +324,7 @@ public class KjumpKI8360 implements GattCallback {
      * @param characteristic characteristic
      */
     private void onGetConfirmUserAndMemory (BluetoothGattCharacteristic characteristic) {
+        maxNumberOfData = characteristic.getValue()[3];
         dataStartPosition = characteristic.getValue()[7];
         user = characteristic.getValue()[9];
         sendCallback();
