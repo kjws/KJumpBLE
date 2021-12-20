@@ -1,9 +1,9 @@
-package com.example.kjumpble.ble.cmd;
+package com.example.kjumpble.ble.cmd.kd;
 
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 
-public class KI2070Cmd {
+public class KD2070Cmd {
     // *************************
     // ** KD-2070
     // ****** Temperature unit and hand

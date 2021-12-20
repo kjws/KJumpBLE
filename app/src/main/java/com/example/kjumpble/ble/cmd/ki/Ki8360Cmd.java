@@ -1,4 +1,4 @@
-package com.example.kjumpble.ble.cmd;
+package com.example.kjumpble.ble.cmd.ki;
 
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;

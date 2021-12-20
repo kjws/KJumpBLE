@@ -1,4 +1,4 @@
-package com.example.kjumpble.ble.cmd;
+package com.example.kjumpble.ble.cmd.ki;
 
 public class KI8180Cmd {
     // *************************
