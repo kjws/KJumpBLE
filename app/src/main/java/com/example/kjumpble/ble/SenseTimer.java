@@ -18,8 +18,6 @@ public class SenseTimer {
         @Override
         public void run () {
             SenseCount = 0;
-            Log.d(TAG, "RunAgain");
-
             if (isSensing) {
                 isSensing = false;
                 timerCallBack.onStopSense();

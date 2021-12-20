@@ -1,4 +1,7 @@
 package com.example.kjumpble.ble.cmd.kp;
 
-public class KPInnerCmd {
+public enum KPInnerCmd {
+    Nothing,
+    Write_Reminder,
+    Write_Time,
 }

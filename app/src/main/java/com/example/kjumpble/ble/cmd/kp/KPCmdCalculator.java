@@ -1,6 +1,7 @@
 package com.example.kjumpble.ble.cmd.kp;
 
 import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
@@ -33,7 +34,7 @@ public class KPCmdCalculator {
         return getCommand(bytes);
     }
 
-    public static byte[] getTimeBytes (ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnitEnum unit, HourFormat hourFormat, boolean clockShowFlag) {
+    public static byte[] getTimeBytes (KPDeviceSetting deviceSetting) {
         byte[] bytes = writeTimeCmd;
         Calendar calendar = Calendar.getInstance();
         bytes[1] = (byte) (calendar.get(Calendar.YEAR) - 1999);
@@ -42,7 +43,7 @@ public class KPCmdCalculator {
         bytes[4] = (byte) (calendar.get(Calendar.HOUR));
         bytes[5] = (byte) (calendar.get(Calendar.MINUTE));
         bytes[6] = (byte) (calendar.get(Calendar.SECOND));
-        bytes[7] = getInformationByte(reminders, Ambient, unit, hourFormat, clockShowFlag);
+        bytes[7] = getInformationByte(deviceSetting);
 
         return getCommand(bytes);
     }
@@ -96,12 +97,12 @@ public class KPCmdCalculator {
         return (byte) ((256 - (sum & 0xff)) & 0xff);
     }
 
-    private static byte getInformationByte (ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnitEnum unit, HourFormat hourFormat, boolean clockShowFlag) {
-        byte InformationByte = getReminderEnabledByte(reminders);
-        InformationByte = Ambient ? (byte) (InformationByte | 0x10) : InformationByte;
-        InformationByte = unit == TemperatureUnitEnum.F ? (byte) (InformationByte | 0x20) : InformationByte;
-        InformationByte = hourFormat == HourFormat.is12 ? (byte) (InformationByte | 0x40) : InformationByte;//device 布林值為12小時制，避免與reminder的24時制混淆，另創專屬device時制的設定
-        InformationByte = clockShowFlag ? (byte) (InformationByte | 0x80) : InformationByte;
+    private static byte getInformationByte (KPDeviceSetting deviceSetting) {
+        byte InformationByte = getReminderEnabledByte(deviceSetting.getReminders());
+        InformationByte = deviceSetting.getAmbient() ? (byte) (InformationByte | 0x10) : InformationByte;
+        InformationByte = deviceSetting.getUnit().ordinal() == TemperatureUnitEnum.F.ordinal() ? (byte) (InformationByte | 0x20) : InformationByte;
+        InformationByte = deviceSetting.getHourFormat() == HourFormat.is12 ? (byte) (InformationByte | 0x40) : InformationByte;//device 布林值為12小時制，避免與reminder的24時制混淆，另創專屬device時制的設定
+        InformationByte = deviceSetting.getClockShowFlag() ? (byte) (InformationByte | 0x80) : InformationByte;
         return InformationByte;
     }
 

@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.example.kjumpble.ble.callback.GattCallback;
 import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
@@ -22,8 +23,8 @@ public class KPCmd {
         return KPCmdCalculator.getReminderBytes(reminders);
     }
 
-    public static byte[] getWriteTimeCommand (ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnitEnum unit, HourFormat hourFormat, boolean clockShowFlag) {
-        return KPCmdCalculator.getTimeBytes(reminders, Ambient, unit, hourFormat, clockShowFlag);
+    public static byte[] getWriteTimeCommand (KPDeviceSetting deviceSetting) {
+        return KPCmdCalculator.getTimeBytes(deviceSetting);
     }
 
     public static byte[] getReadMemoryCommand(int index) {

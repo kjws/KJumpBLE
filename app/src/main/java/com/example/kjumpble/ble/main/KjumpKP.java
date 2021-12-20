@@ -14,6 +14,7 @@ import com.example.kjumpble.ble.cmd.kp.KPInnerCmd;
 import com.example.kjumpble.ble.data.KP.memory.KPMemoryFilter;
 import com.example.kjumpble.ble.data.KP.user.KPUserFilter;
 import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPUser;
 import com.example.kjumpble.ble.SenseTimer;
@@ -23,6 +24,7 @@ import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 import com.example.kjumpble.util.BLEUtil;
 
+import java.sql.Struct;
 import java.util.ArrayList;
 
 public class KjumpKP {
@@ -37,9 +39,12 @@ public class KjumpKP {
 
     KPDesCmd destinyCommand = KPDesCmd.Nothing;
 
-    KPInnerCmd innerCmd;
+    KPInnerCmd innerCmd = KPInnerCmd.Nothing;
     // Sense Timer
     SenseTimer senseTimer;
+
+    // For write kp setting
+    KPDeviceSetting deviceSetting;
 
     public KjumpKP (BluetoothGatt gatt, KjumpKPCallback kjumpKPCallback, BluetoothManager bluetoothManager) {
         this.gatt = gatt;
@@ -57,20 +62,28 @@ public class KjumpKP {
         beWroteCharacteristic = gatt.getService(KjumpUUIDList.KJUMP_CHARACTERISTIC_CONFIG_UUID).getCharacteristic(KjumpUUIDList.KJUMP_CHARACTERISTIC_WRITE_UUID);
     }
 
-    public void setReminder(ArrayList<ReminderFormat> reminders) {
+    // 先寫下reminder，在收到回覆之後再寫入time
+    public void setDevice(KPDeviceSetting deviceSetting) {
+        this.deviceSetting = deviceSetting;
+        setReminder(deviceSetting.getReminders());
+    }
+
+    private void setReminder(ArrayList<ReminderFormat> reminders) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
         destinyCommand = KPDesCmd.Set_Device;
+        innerCmd = KPInnerCmd.Write_Reminder;
         writeCharacteristic(KPCmd.getWriteReminderCommand(reminders));
     }
 
-    public void setTime(ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnitEnum unit, HourFormat hourFormat, boolean clockShowFlag) {
+    private void setTime(KPDeviceSetting deviceSetting) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
         destinyCommand = KPDesCmd.Set_Device;
-        writeCharacteristic(KPCmd.getWriteTimeCommand(reminders, Ambient, unit, hourFormat, clockShowFlag));
+        innerCmd = KPInnerCmd.Write_Time;
+        writeCharacteristic(KPCmd.getWriteTimeCommand(deviceSetting));
     }
 
     public void readMemory(int index) {
@@ -135,6 +148,20 @@ public class KjumpKP {
     public void onCharacteristicChanged (BluetoothGattCharacteristic characteristic) {
         byte[] data = characteristic.getValue();
         switch (destinyCommand) {
+            case Set_Device:
+                switch (innerCmd) {
+                    case Write_Time:
+                        if (data[0] == (byte) 0x2d & data[1] == (byte) 0x88) {
+                            kjumpKPCallback.onSetDeviceFinished(true);
+                        }
+                        break;
+                    case Write_Reminder:
+                        if (data[0] == (byte) 0x2d & data[1] == (byte) 0x99) {
+                            setTime(deviceSetting);
+                        }
+                        break;
+                }
+                break;
             case Read_Memory_At_Index: {
                 KPMemory kpMemory = new KPMemoryFilter().getKpMemory(gatt.getDevice().getName(), data);
                 if (kpMemory != null) {

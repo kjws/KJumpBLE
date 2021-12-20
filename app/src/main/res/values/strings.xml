@@ -34,7 +34,7 @@
 <!--    kp    -->
     <string name="read_kp_memory">Read kp memory</string>
     <string name="read_number_of_memory">Read number of memory</string>
-    <string name="write_kp_reminder">Write KP reminder</string>
+    <string name="kp_set_device">Set kp device</string>
     <string name="write_kp_time">Write KP time</string>
 
     <string name="start_kp_sense">Start sense</string>

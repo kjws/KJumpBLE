@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothGatt;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -22,15 +23,18 @@ import com.example.kjumpble.ble.CheckBLEScan;
 import com.example.kjumpble.ble.CheckLocationStatus;
 import com.example.kjumpble.ble.callback.OnProgressListener;
 import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.util.DeviceRegex;
 import com.example.kjumpble.util.MyPermissions;
 import com.example.kjumpble.permission.PermissionRequestCode;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     private BLEService bleService;
@@ -205,26 +209,30 @@ public class MainActivity extends AppCompatActivity {
         bleService.writeTemperatureUnit(testTemperatureUnit);
     };
 
+    /**
+     * KP Series
+     */
+    // Write Device Setting
+    KPDeviceSetting deviceSetting = new KPDeviceSetting(reminder, true, testTemperatureUnit, hourFormat, clockShowFlag);
+
     // Write reminder time
-    private final ArrayList<ReminderFormat> reminder = new ArrayList<> () {{
-            add(new ReminderFormat(false, 7, 3));
-            add(new ReminderFormat(false, 11, 4));
-            add(new ReminderFormat(false, 15, 7));
-            add(new ReminderFormat(false, 19, 9));
+    private static final ArrayList<ReminderFormat> reminder = new ArrayList<> () {{
+            add(new ReminderFormat(true, 9, 35));
+            add(new ReminderFormat(true, 13, 47));
+            add(new ReminderFormat(true, 17, 21));
+            add(new ReminderFormat(true, 23, 58));
         }
     };
 
-    private final View.OnClickListener writeKPReminderOnClickListener = v -> {
-        bleService.setKPReminder(reminder);
+    // Write time
+    private static final HourFormat hourFormat = HourFormat.is12;
+    private static final boolean ambient = true;
+    private static final boolean clockShowFlag = true;
+
+    private final View.OnClickListener setKPDeviceOnClickListener = v -> {
+        bleService.setDevice(deviceSetting);
     };
 
-    // Write time
-    private HourFormat hourFormat = HourFormat.is12;
-    private boolean ambient = true;
-    private boolean clockShowFlag = true;
-    private final View.OnClickListener writeKPTimeOnClickListener = v -> {
-        bleService.setKPTime(reminder, ambient, testTemperatureUnit, hourFormat, clockShowFlag);
-    };
 
     private final View.OnClickListener readNumberOfMemoryOnClickListener = v -> {
         bleService.readKPNumberOfMemory();
@@ -269,48 +277,35 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        public void onConnected () {
+        public void onConnected (BluetoothGatt gatt) {
+
             activity.runOnUiThread(new Runnable() {
                 @Override
                 public void run () {
                     bleStatusTextView.setText(R.string.connecting);
-                    activity.setContentView(R.layout.kplayout);
 
-                    // kp
-                    Button readNumberOfMemoryButton;
-                    Button readMemoryButton;
-                    Button setKPReminderButton;
-                    Button setKPTimeButton;
-                    Button kpStartSenseButton;
-                    Button kpStopSenseButton;
-                    Button kpClearMemoryButton;
-                    Button kpChangeModeButton;
-                    // kp
+                    String deviceName = gatt.getDevice().getName();
+                    if (Pattern.matches(DeviceRegex.KPSeries, deviceName)) {
+                        kpViewInit(activity);
+                    }
+                    else if (Pattern.matches(DeviceRegex.KI8180, deviceName)) {
 
-                    readNumberOfMemoryButton = findViewById(R.id.readNumberOfMemoryButton);
-                    readNumberOfMemoryButton.setOnClickListener(readNumberOfMemoryOnClickListener);
+                    }
+                    else if (Pattern.matches(DeviceRegex.KI8186, deviceName)) {
 
-                    readMemoryButton = findViewById(R.id.readMemoryButton);
-                    readMemoryButton.setOnClickListener(readMemoryOnClickListener);
+                    }
+                    else if (Pattern.matches(DeviceRegex.KI8360, deviceName)) {
 
-                    setKPReminderButton = findViewById(R.id.writeKPReminderButton);
-                    setKPReminderButton.setOnClickListener(writeKPReminderOnClickListener);
+                    }
+                    else if (Pattern.matches(DeviceRegex.KG517x, deviceName)) {
 
-                    setKPTimeButton = findViewById(R.id.writeKPTimeButton);
-                    setKPTimeButton.setOnClickListener(writeKPTimeOnClickListener);
+                    }
+                    else if (Pattern.matches(DeviceRegex.KD2070, deviceName)) {
 
-                    kpStartSenseButton = findViewById(R.id.startSenseButton);
-                    kpStartSenseButton.setOnClickListener(kpStartSenseOnClickListener);
+                    }
+                    else if (Pattern.matches(DeviceRegex.KD2161, deviceName)) {
 
-                    kpStopSenseButton = findViewById(R.id.stopSenseButton);
-                    kpStopSenseButton.setOnClickListener(kpStopSenseOnClickListener);
-
-                    kpClearMemoryButton = findViewById(R.id.kpclearMemoryButton);
-                    kpClearMemoryButton.setOnClickListener(kpClearMemoryOnClickListener);
-
-                    kpChangeModeButton = findViewById(R.id.changeModeButton);
-                    kpChangeModeButton.setOnClickListener(kpChangeModeOnClickListener);
-
+                    }
                 }
             });
         }
@@ -333,4 +328,40 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void kpViewInit (Activity activity) {
+        activity.setContentView(R.layout.kplayout);
+        Button readNumberOfMemoryButton;
+        Button readMemoryButton;
+        Button setKPDeviceButton;
+        Button kpStartSenseButton;
+        Button kpStopSenseButton;
+        Button kpClearMemoryButton;
+        Button kpChangeModeButton;
+
+        readNumberOfMemoryButton = findViewById(R.id.readNumberOfMemoryButton);
+        readNumberOfMemoryButton.setOnClickListener(readNumberOfMemoryOnClickListener);
+
+        readMemoryButton = findViewById(R.id.readMemoryButton);
+        readMemoryButton.setOnClickListener(readMemoryOnClickListener);
+
+        setKPDeviceButton = findViewById(R.id.setDeviceButton);
+        setKPDeviceButton.setOnClickListener(setKPDeviceOnClickListener);
+
+        kpStartSenseButton = findViewById(R.id.startSenseButton);
+        kpStartSenseButton.setOnClickListener(kpStartSenseOnClickListener);
+
+        kpStopSenseButton = findViewById(R.id.stopSenseButton);
+        kpStopSenseButton.setOnClickListener(kpStopSenseOnClickListener);
+
+        kpClearMemoryButton = findViewById(R.id.kpclearMemoryButton);
+        kpClearMemoryButton.setOnClickListener(kpClearMemoryOnClickListener);
+
+        kpChangeModeButton = findViewById(R.id.changeModeButton);
+        kpChangeModeButton.setOnClickListener(kpChangeModeOnClickListener);
+    }
+
+    private void kpOnClickListenerInit () {
+
+    }
 }

@@ -12,6 +12,10 @@ public abstract class KjumpKPCallback {
 
     }
 
+    public void onSetDeviceFinished (boolean success) {
+
+    }
+
     public void onGetMemory(KPMemory kpMemory) {
 
     }

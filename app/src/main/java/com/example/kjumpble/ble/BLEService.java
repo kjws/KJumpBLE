@@ -23,12 +23,14 @@ import android.util.Log;
 import com.example.kjumpble.ble.callback.KjumpKI8360Callback;
 import com.example.kjumpble.ble.callback.KjumpKPCallback;
 import com.example.kjumpble.ble.format.HourFormat;
+import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPUser;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.main.KjumpKI8360;
 import com.example.kjumpble.ble.main.KjumpKP;
+import com.example.kjumpble.util.DeviceRegex;
 import com.example.kjumpble.util.Helper;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
@@ -40,6 +42,7 @@ import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 
 import java.util.ArrayList;
+import java.util.regex.Pattern;
 
 public class BLEService extends Service {
     private final BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -177,19 +180,35 @@ public class BLEService extends Service {
             if (newState == BluetoothProfile.STATE_CONNECTED) {
                 gatt.discoverServices();
                 // successfully connected to the GATT Server
-                onProgressListener.onConnected();
+                onProgressListener.onConnected(gatt);
                 connectionState = STATE_CONNECTED;
                 broadcastUpdate(ACTION_GATT_CONNECTED);
 
                 // init kjump8360
                 Log.d("testService", "connected");
-                if (gatt.getDevice().getName().equals("KI-8360")) {
+                String deviceName = gatt.getDevice().getName();
+                if (Pattern.matches(DeviceRegex.KPSeries, deviceName)) {
+                    bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                    kjumpKP = new KjumpKP(gatt, kjumpKPCallback, bluetoothManager);
+                }
+                else if (Pattern.matches(DeviceRegex.KI8180, deviceName)) {
+
+                }
+                else if (Pattern.matches(DeviceRegex.KI8186, deviceName)) {
+
+                }
+                else if (Pattern.matches(DeviceRegex.KI8360, deviceName)) {
                     bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
                     kjumpKI8360 = new KjumpKI8360(gatt, kjumpKI8360Callback, bluetoothManager);
                 }
-                else if (gatt.getDevice().getName().contains("KP")) {
-                    bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-                    kjumpKP = new KjumpKP(gatt, kjumpKPCallback, bluetoothManager);
+                else if (Pattern.matches(DeviceRegex.KG517x, deviceName)) {
+
+                }
+                else if (Pattern.matches(DeviceRegex.KD2070, deviceName)) {
+
+                }
+                else if (Pattern.matches(DeviceRegex.KD2161, deviceName)) {
+
                 }
                 // add device in connecting devices
                 connectingDeviceListAdapter.addDevice(gatt.getDevice());
@@ -388,24 +407,14 @@ public class BLEService extends Service {
         kjumpKI8360.setDevice();
     }
 
-    public void setKPReminder (ArrayList< ReminderFormat > reminders) {
+    public void setDevice (KPDeviceSetting deviceSetting) {
         if (kjumpKP == null)
             return;
         if (kjumpKP.gatt == null) {
             Log.w("testKP", "BluetoothGatt not initialized");
             return;
         }
-        kjumpKP.setReminder(reminders);
-    }
-
-    public void setKPTime (ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnitEnum unit, HourFormat hourFormat, boolean clockShowFlag) {
-        if (kjumpKP == null)
-            return;
-        if (kjumpKP.gatt == null) {
-            Log.w("testKP", "BluetoothGatt not initialized");
-            return;
-        }
-        kjumpKP.setTime(reminders, Ambient, unit, hourFormat, clockShowFlag);
+        kjumpKP.setDevice(deviceSetting);
     }
 
     public void readKPMemory (int index) {
