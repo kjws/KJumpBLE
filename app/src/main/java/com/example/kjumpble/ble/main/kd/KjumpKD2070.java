@@ -1,4 +1,4 @@
-package com.example.kjumpble.ble.main;
+package com.example.kjumpble.ble.main.kd;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;

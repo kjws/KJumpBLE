@@ -1,4 +1,4 @@
-package com.example.kjumpble.ble.main;
+package com.example.kjumpble.ble.main.kd;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -12,9 +12,7 @@ import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.cmd.kd.KD2070Cmd;
 import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
 import com.example.kjumpble.ble.data.DataFormatOfKI8360;
-import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
-import com.example.kjumpble.ble.format.kd.KDTemperatureUnitAndHand;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;

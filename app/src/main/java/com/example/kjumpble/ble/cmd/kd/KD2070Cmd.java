@@ -1,6 +1,5 @@
 package com.example.kjumpble.ble.cmd.kd;
 
-import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
@@ -27,7 +26,7 @@ public class KD2070Cmd {
             0x05, 0x06}; // 分秒
 
     public static byte[] getWriteClockTimePreCommand (ClockTimeFormat time) {
-        byte[] command = Ki8360Cmd.writeClockTimeAndFlagPreCmd;
+        byte[] command = writeClockTimePreCmd;
         command[4] = (byte) (time.year - 2000);
         command[5] = (byte) time.month;
         command[6] = (byte) time.day;
@@ -36,7 +35,7 @@ public class KD2070Cmd {
     }
 
     public static byte[] getWriteClockTimePostCommand (ClockTimeFormat time) {
-        byte[] command = Ki8360Cmd.writeClockTimeAndFlagPostCmd;
+        byte[] command = writeClockTimePostCmd;
         command[4] = (byte) time.minute;
         command[5] = (byte) time.second;
         return command;

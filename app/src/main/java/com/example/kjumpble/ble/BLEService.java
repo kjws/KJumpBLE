@@ -22,13 +22,11 @@ import android.util.Log;
 
 import com.example.kjumpble.ble.callback.KjumpKI8360Callback;
 import com.example.kjumpble.ble.callback.KjumpKPCallback;
-import com.example.kjumpble.ble.format.HourFormat;
 import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPUser;
 import com.example.kjumpble.ble.format.KP.SenseMode;
-import com.example.kjumpble.ble.format.ReminderFormat;
-import com.example.kjumpble.ble.main.KjumpKI8360;
+import com.example.kjumpble.ble.main.ki.KjumpKI8360;
 import com.example.kjumpble.ble.main.KjumpKP;
 import com.example.kjumpble.util.DeviceRegex;
 import com.example.kjumpble.util.Helper;
