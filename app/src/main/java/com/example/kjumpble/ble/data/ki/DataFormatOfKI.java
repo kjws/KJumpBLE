@@ -1,4 +1,4 @@
-package com.example.kjumpble.ble.data;
+package com.example.kjumpble.ble.data.ki;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -8,7 +8,7 @@ import com.example.kjumpble.ble.SensePositionEnum;
 
 import java.io.Serializable;
 
-public class DataFormatOfKI8360 {
+public class DataFormatOfKI {
     public int Year;
     public int Month;
     public int Day;
@@ -17,7 +17,7 @@ public class DataFormatOfKI8360 {
     public int SensePosition;
     public float Temperature;
 
-    public DataFormatOfKI8360 (byte[] data) {
+    public DataFormatOfKI (byte[] data) {
         Year = 2000 + data[1];
         Month = data[2];
         Day = data[3];

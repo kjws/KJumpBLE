@@ -12,7 +12,7 @@ import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.callback.GattCallback;
 import com.example.kjumpble.ble.callback.KjumpKI8360Callback;
 import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
-import com.example.kjumpble.ble.data.DataFormatOfKI8360;
+import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
@@ -34,7 +34,7 @@ public class KjumpKI8360 implements GattCallback {
     int user = 0;
     int numberOfData = 0;
     int dataIndex = 0;
-    ArrayList<DataFormatOfKI8360> dataFormatOfKI8360s;
+    ArrayList<DataFormatOfKI> dataFormatOfKIS;
     BluetoothGattCharacteristic beWroteCharacteristic;
 
     // clock
@@ -50,7 +50,7 @@ public class KjumpKI8360 implements GattCallback {
     }
 
     private void dataInit () {
-        dataFormatOfKI8360s = new ArrayList<>();
+        dataFormatOfKIS = new ArrayList<>();
         dataIndex = 0;
         numberOfData = 0;
         user = 0;
@@ -273,11 +273,11 @@ public class KjumpKI8360 implements GattCallback {
                     kjumpKI8360Callback.onGetNumberOfData(numberOfData);
                 break;
             case ReadLatestMemoryCmd:
-                DataFormatOfKI8360 data;
-                if (dataFormatOfKI8360s.size() == 0)
+                DataFormatOfKI data;
+                if (dataFormatOfKIS.size() == 0)
                     data = null;
                 else
-                    data = dataFormatOfKI8360s.get(0);
+                    data = dataFormatOfKIS.get(0);
                 switch (cmd) {
                     case READ_DATA:
                     case NUMBER_OF_DATA_ZERO:
@@ -289,7 +289,7 @@ public class KjumpKI8360 implements GattCallback {
                 switch (cmd) {
                     case READ_DATA:
                     case NUMBER_OF_DATA_ZERO:
-                        kjumpKI8360Callback.onGetAllMemory(dataFormatOfKI8360s);
+                        kjumpKI8360Callback.onGetAllMemory(dataFormatOfKIS);
                         break;
                 }
                 break;
@@ -345,7 +345,7 @@ public class KjumpKI8360 implements GattCallback {
      */
     private void onGetConfirmNumberOfData (BluetoothGattCharacteristic characteristic) {
         numberOfData = characteristic.getValue()[1];
-        dataFormatOfKI8360s = new ArrayList<>();
+        dataFormatOfKIS = new ArrayList<>();
         sendCallback();
 
         switch (bleClientCmd) {
@@ -378,7 +378,7 @@ public class KjumpKI8360 implements GattCallback {
      * @param characteristic characteristic
      */
     private void onGetReadData (BluetoothGattCharacteristic characteristic) {
-        dataFormatOfKI8360s.add(new DataFormatOfKI8360(characteristic.getValue()));
+        dataFormatOfKIS.add(new DataFormatOfKI(characteristic.getValue()));
         switch (bleClientCmd) {
             case ReadLatestMemoryCmd:
                 if (dataIndex == numberOfData - 1)

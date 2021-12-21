@@ -1,4 +1,4 @@
-package com.example.kjumpble.ble.main.kd;
+package com.example.kjumpble.ble.main.ki;
 
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
@@ -6,40 +6,44 @@ import android.bluetooth.BluetoothManager;
 import android.util.Log;
 
 import com.example.kjumpble.ble.LeConnectStatus;
-import com.example.kjumpble.ble.callback.kd.KjumpKD2161Callback;
+import com.example.kjumpble.ble.callback.ki.KjumpKI8180Callback;
+import com.example.kjumpble.ble.callback.ki.KjumpKI8186Callback;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.cmd.kd.KD2070Cmd;
+import com.example.kjumpble.ble.cmd.ki.KI8186Cmd;
 import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
-import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
+import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 import com.example.kjumpble.util.BLEUtil;
+import com.example.kjumpble.util.KI8186Util;
 
 import java.util.Arrays;
 
-public class KjumpKD2161 {
-    static final String TAG = KjumpKD2161.class.getSimpleName();
-    private final KjumpKD2161Callback callBack;
-    public final BluetoothGatt gatt;
+public class KjumpKI8186 {
+    static final String TAG = KjumpKI8186.class.getSimpleName();
+
+    private final KjumpKI8186Callback callBack;
+
+    BLE_CMD cmd;
+    BLE_CLIENT_CMD bleClientCmd;
+
+    public BluetoothGatt gatt;
     private final BluetoothManager bluetoothManager;
-    private BluetoothGattCharacteristic beWroteCharacteristic;
-
-    private BLE_CMD cmd;
-    private BLE_CLIENT_CMD bleClientCmd;
-
-    private DataFormatOfKD dataFormatOfKD;
-    private int indexOfData;
-    private int numberOfData = 0;
-    TemperatureUnitEnum TemperatureUnit;
+    int numberOfData = 0;
+    int indexOfData = 0;
+    int indexOfReminder = 0;
+    DataFormatOfKI dataFormatOfKI;
+    BluetoothGattCharacteristic beWroteCharacteristic;
 
     // clock
     ClockTimeFormat clock_time;
     boolean enabled;
 
-    public KjumpKD2161 (BluetoothGatt gatt, KjumpKD2161Callback callBack, BluetoothManager bluetoothManager) {
+    public KjumpKI8186 (BluetoothGatt gatt, KjumpKI8186Callback callBack, BluetoothManager bluetoothManager) {
         this.gatt = gatt;
         this.callBack = callBack;
         this.bluetoothManager = bluetoothManager;
@@ -138,13 +142,37 @@ public class KjumpKD2161 {
      * @param reminder_clock_time : Reminder clock time.
      * @param enabled : True if you want to enable reminder clock.
      */
-    public void writeReminderClockTimeAndEnabled (ReminderTimeFormat reminder_clock_time, boolean enabled) {
+    public void writeReminderClockTimeAndEnabled (int index, ReminderTimeFormat reminder_clock_time, boolean enabled) {
+        if (!KI8186Util.checkReminderIndexOutOfRange(index, TAG))
+            return;
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
+        indexOfReminder = index;
         bleClientCmd = BLE_CLIENT_CMD.WriteReminderCmd;
         cmd = BLE_CMD.WRITE_REMINDER_CLOCK;
-        writeCharacteristic(Ki8360Cmd.getWriteReminderClockTimeAndEnabledCommand(reminder_clock_time, enabled));
+        writeCharacteristic(KI8186Cmd.getWriteReminderAndFlagCommand(index, reminder_clock_time, enabled));
+    }
+
+    public void writeOffset (int offset) {
+        if (!KI8186Util.checkOffsetOutOfRange(offset, TAG)) {
+            return;
+        }
+        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
+            return;
+        dataInit();
+        bleClientCmd = BLE_CLIENT_CMD.WriteOffsetCmd;
+        cmd = BLE_CMD.WRITE_REMINDER_CLOCK;
+        writeCharacteristic(KI8186Cmd.getWriteOffsetCommand(offset));
+    }
+
+    public void writeBeep (boolean clockFlag, boolean beepFlag) {
+        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
+            return;
+        dataInit();
+        bleClientCmd = BLE_CLIENT_CMD.WriteBeepCmd;
+        cmd = BLE_CMD.WRITE_BEEP;
+        writeCharacteristic(KI8186Cmd.getWriteClockFlagAndBeepCommand(clockFlag, beepFlag));
     }
 
     /**
@@ -165,7 +193,11 @@ public class KjumpKD2161 {
         gatt.writeCharacteristic(beWroteCharacteristic);
     }
 
+    // *****************************************************************************************
+    // **                               onCharacteristicChanged                               **
+    // *****************************************************************************************
     /**
+     *
      * Notify when ble notification is enable and concurrently get onChanged.
      * @param characteristic characteristic
      */
@@ -174,7 +206,7 @@ public class KjumpKD2161 {
         switch (cmd) {
             case WRITE_SET:
                 if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
-                    onGetRefreshCmd(characteristic);
+                    onGetSetDeviceCmd(characteristic);
                 break;
             case CONFIRM_NUMBER_OF_DATA:
                 onGetNumberOfData(characteristic);
@@ -191,11 +223,16 @@ public class KjumpKD2161 {
             case WRITE_POST_CLOCK:
             case WRITE_REMINDER_CLOCK:
             case WRITE_UNIT:
-                if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
-                    onGetWaitCmd(characteristic);
+            case WRITE_OFFSET:
+            case WRITE_BEEP:
+                onGetWaitCmd(characteristic);
                 break;
         }
     }
+
+    // *****************************************************************************************
+    // **                                     sendCallback                                    **
+    // *****************************************************************************************
 
     private void sendCallback () {
         Log.d(TAG, "sendBroadcast bleClientCmd = " + bleClientCmd + ",cmd = " + cmd);
@@ -208,29 +245,49 @@ public class KjumpKD2161 {
                     callBack.onGetNumberOfData(numberOfData);
                 break;
             case ReadIndexMemoryCmd:
-                callBack.onGetIndexMemory(indexOfData, dataFormatOfKD);
+                callBack.onGetIndexMemory(indexOfData, dataFormatOfKI);
                 break;
             case ClearAllDataCmd:
                 callBack.onClearAllDataFinished(true);
                 break;
             case WriteClockCmd:
-                if (cmd == BLE_CMD.WRITE_SET)
-                    callBack.onWriteClockFinished(true);
-                break;
             case WriteReminderCmd:
-                if (cmd == BLE_CMD.WRITE_SET)
-                    callBack.onWriteReminderClockFinished(true);
-                break;
             case WriteUnitCmd:
-                if (cmd == BLE_CMD.WRITE_SET)
-                    callBack.onWriteUnitFinished(true);
+            case WriteBeepCmd:
+            case WriteOffsetCmd:
+                callbackForWaitCmd(callBack, bleClientCmd);
                 break;
         }
     }
 
-    // ***********************
-    // **    Write split    **
-    // ***********************
+    private void callbackForWaitCmd(KjumpKI8186Callback callback, BLE_CLIENT_CMD bleClientCmd) {
+        switch (bleClientCmd) {
+            case WriteClockCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteClockFinished(true);
+                break;
+            case WriteReminderCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteReminderFinished(indexOfData, true);
+                break;
+            case WriteUnitCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteUnitFinished(true);
+                break;
+            case WriteBeepCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteBeepFinished(true);
+                break;
+            case WriteOffsetCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteOffsetFinished(true);
+                break;
+        }
+    }
+
+    // *****************************************************************************************
+    // **                                     sendCallback                                    **
+    // *****************************************************************************************
 
     /**
      * onCharacteristicChanged trigger and command is CONFIRM_NUMBER_OF_DATA
@@ -246,7 +303,7 @@ public class KjumpKD2161 {
      * @param characteristic characteristic
      */
     private void onGetReadData (BluetoothGattCharacteristic characteristic) {
-        dataFormatOfKD = new DataFormatOfKD(characteristic.getValue());
+        dataFormatOfKI = new DataFormatOfKI(characteristic.getValue());
         switch (bleClientCmd) {
             case ReadIndexMemoryCmd:
                 sendCallback();
@@ -281,13 +338,14 @@ public class KjumpKD2161 {
      * onCharacteristicChanged trigger and command is WRITE_REFRESH_COMMAND
      * @param characteristic characteristic
      */
-    private void onGetRefreshCmd (BluetoothGattCharacteristic characteristic) {
+    private void onGetSetDeviceCmd (BluetoothGattCharacteristic characteristic) {
         if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
             switch (bleClientCmd) {
-                case WriteSetDeviceCmd:
                 case WriteClockCmd:
                 case WriteReminderCmd:
                 case WriteUnitCmd:
+                case WriteOffsetCmd:
+                case WriteBeepCmd:
                     sendCallback();
                     break;
             }

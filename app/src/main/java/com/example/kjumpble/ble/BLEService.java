@@ -33,7 +33,7 @@ import com.example.kjumpble.util.Helper;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.callback.OnProgressListener;
-import com.example.kjumpble.ble.data.DataFormatOfKI8360;
+import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
@@ -497,7 +497,7 @@ public class BLEService extends Service {
 
         // When you call writeCommand(BLE_CLIENT_CMD.ReadLatestMemoryCmd) you will get it here.
         @Override
-        public void onGetLastMemory (DataFormatOfKI8360 data) {
+        public void onGetLastMemory (DataFormatOfKI data) {
             super.onGetLastMemory(data);
 
             Log.d("test8360", "GetLastMemory");
@@ -521,7 +521,7 @@ public class BLEService extends Service {
 
         // When you call writeCommand(BLE_CLIENT_CMD.ReadAllMemoryCmd) you will get it here.
         @Override
-        public void onGetAllMemory (ArrayList<DataFormatOfKI8360> data) {
+        public void onGetAllMemory (ArrayList<DataFormatOfKI> data) {
             super.onGetAllMemory(data);
 
             if (data.size() > 0) {
