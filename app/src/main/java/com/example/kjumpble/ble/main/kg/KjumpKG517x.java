@@ -331,8 +331,7 @@ public class KjumpKG517x {
                 break;
             case WriteReminderCmd:
                 ReminderFormat reminder = settings.getReminders()[indexOfReminder];
-                writeReminderClockTimeAndEnabled(indexOfReminder,
-                        new ReminderTimeFormat(reminder.getHour(), reminder.getMinute()),
+                writeReminderClockTimeAndEnabled(indexOfReminder, reminder.getTime(),
                         reminder.isEnable());
                 break;
             case WriteUnitCmd:
