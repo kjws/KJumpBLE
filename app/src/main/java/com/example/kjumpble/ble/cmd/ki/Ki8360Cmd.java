@@ -5,6 +5,7 @@ import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 
 public class Ki8360Cmd {
+    public static final byte[] readSettingsCmd = new byte[]{0x02, 0x01, 0x00, (byte) 0x54};
     public static final byte[] confirmUserAndMemoryCmd = new byte[]{0x02, 0x0a, 0x00, (byte) 0x80};
     public static final byte[] readNumberOfDataCmd = new byte[]{0x02, 0x01, 0x00, 0x6c};
     public static final byte[] readDataCmd = new byte[]{0x02, 0x09, 0x00, (byte) 0xa8}; // 02, 09, 00, 0xa8(起始位置)
@@ -24,6 +25,20 @@ public class Ki8360Cmd {
     public static final byte[] writeReturnCmd = new byte[]{0x03, 0x55, (byte) 0xaa};
     public static final byte[] writeTemperatureUnitCmd = new byte[]{0x03, 0x01, 0x00, 0x6b,
             0x01};
+
+    public static byte[] getReadSettingsStep1Cmd() {
+        byte[] commands = readSettingsCmd;
+        commands[1] = 0x12;
+        commands[3] = 0x54;
+        return commands;
+    }
+
+    public static byte[] getReadSettingsStep2Cmd() {
+        byte[] commands = readSettingsCmd;
+        commands[1] = 0x06;
+        commands[3] = 0x66;
+        return commands;
+    }
 
     public static byte[] getConfirmUserAndMemoryCmd() {
         return Ki8360Cmd.confirmUserAndMemoryCmd;

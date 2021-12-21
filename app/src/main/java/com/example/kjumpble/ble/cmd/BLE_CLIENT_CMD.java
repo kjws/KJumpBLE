@@ -1,6 +1,7 @@
 package com.example.kjumpble.ble.cmd;
 
 public enum BLE_CLIENT_CMD {
+    ReadSettingsCmd,
     ReadNumberOfDataCmd,
     ReadUserAndMemoryCmd,
     ReadIndexMemoryCmd,
@@ -9,6 +10,7 @@ public enum BLE_CLIENT_CMD {
     ClearAllDataCmd,
     WriteClockCmd,
     WriteReminderCmd,
+    WriteRemindersFlagCmd,
     WriteAmbientCmd,
     WriteOffsetCmd,
     WriteBeepCmd,

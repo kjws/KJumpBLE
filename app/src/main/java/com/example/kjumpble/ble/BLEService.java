@@ -20,7 +20,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.example.kjumpble.ble.callback.KjumpKI8360Callback;
+import com.example.kjumpble.ble.callback.ki.KjumpKI8360Callback;
 import com.example.kjumpble.ble.callback.KjumpKPCallback;
 import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.KPMemory;

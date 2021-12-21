@@ -10,7 +10,7 @@ import com.example.kjumpble.ble.LeConnectStatus;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.callback.GattCallback;
-import com.example.kjumpble.ble.callback.KjumpKI8360Callback;
+import com.example.kjumpble.ble.callback.ki.KjumpKI8360Callback;
 import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;

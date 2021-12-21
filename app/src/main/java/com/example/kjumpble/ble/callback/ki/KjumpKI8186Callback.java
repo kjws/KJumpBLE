@@ -2,7 +2,7 @@ package com.example.kjumpble.ble.callback.ki;
 
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 
-public class KjumpKI8186Callback {
+public abstract class KjumpKI8186Callback {
     public void onSetDeviceFinished (boolean success) {
 
     }

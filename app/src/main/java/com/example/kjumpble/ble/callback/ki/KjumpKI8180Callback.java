@@ -3,7 +3,7 @@ package com.example.kjumpble.ble.callback.ki;
 import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 
-public class KjumpKI8180Callback {
+public abstract class KjumpKI8180Callback {
     public void onSetDeviceFinished (boolean success) {
 
     }

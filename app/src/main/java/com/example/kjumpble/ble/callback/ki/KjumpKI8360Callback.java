@@ -1,4 +1,4 @@
-package com.example.kjumpble.ble.callback;
+package com.example.kjumpble.ble.callback.ki;
 
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 

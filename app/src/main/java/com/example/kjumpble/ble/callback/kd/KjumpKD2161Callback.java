@@ -2,7 +2,7 @@ package com.example.kjumpble.ble.callback.kd;
 
 import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
 
-public class KjumpKD2161Callback {
+public abstract class KjumpKD2161Callback {
     public void onSetDeviceFinished (boolean success) {
 
     }
