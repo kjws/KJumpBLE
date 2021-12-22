@@ -52,7 +52,7 @@ public class KI8180Settings {
 
     // Unit
     private void setUnit(byte[] data) {
-        this.unit = (data[15] & 0x01) == 0x01 ? TemperatureUnit.F : TemperatureUnit.C;
+        this.unit = (data[23] & 0x01) == 0x01 ? TemperatureUnit.F : TemperatureUnit.C;
     }
     public void setUnit(TemperatureUnit unit) {
         this.unit = unit;
