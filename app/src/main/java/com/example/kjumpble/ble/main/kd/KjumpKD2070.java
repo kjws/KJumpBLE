@@ -7,7 +7,6 @@ import android.util.Log;
 
 import com.example.kjumpble.ble.LeConnectStatus;
 import com.example.kjumpble.ble.callback.kd.KjumpKD2070Callback;
-import com.example.kjumpble.ble.callback.ki.KjumpKI8186Callback;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.cmd.SharedCmd;
@@ -17,7 +16,6 @@ import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.format.kd.KD2070Settings;
-import com.example.kjumpble.ble.format.kd.KDTemperatureUnitAndHand;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 import com.example.kjumpble.util.BLEUtil;
@@ -26,7 +24,7 @@ import java.util.Arrays;
 
 public class KjumpKD2070 {
     static final String TAG = KjumpKD2070.class.getSimpleName();
-    private final KjumpKD2070Callback callBack;
+    private final KjumpKD2070Callback callback;
     public final BluetoothGatt gatt;
     private final BluetoothManager bluetoothManager;
     private BluetoothGattCharacteristic beWroteCharacteristic;
@@ -43,9 +41,9 @@ public class KjumpKD2070 {
     private byte[] settingsBytes = new byte[24];
     private KD2070Settings settings;
 
-    public KjumpKD2070 (BluetoothGatt gatt, KjumpKD2070Callback callBack, BluetoothManager bluetoothManager) {
+    public KjumpKD2070 (BluetoothGatt gatt, KjumpKD2070Callback callback, BluetoothManager bluetoothManager) {
         this.gatt = gatt;
-        this.callBack = callBack;
+        this.callback = callback;
         this.bluetoothManager = bluetoothManager;
     }
 
@@ -243,22 +241,22 @@ public class KjumpKD2070 {
         switch (bleClientCmd) {
             case WriteSetDeviceCmd:
                 if (cmd == BLE_CMD.WRITE_SET)
-                    callBack.onSetDeviceFinished(true);
+                    callback.onSetDeviceFinished(true);
                 break;
             case ReadNumberOfDataCmd:
                 if (cmd == BLE_CMD.CONFIRM_NUMBER_OF_DATA)
-                    callBack.onGetNumberOfData(numberOfData);
+                    callback.onGetNumberOfData(numberOfData);
                 break;
             case ReadIndexMemoryCmd:
-                callBack.onGetIndexMemory(indexOfData, dataFormatOfKD);
+                callback.onGetIndexMemory(indexOfData, dataFormatOfKD);
                 break;
             case ClearAllDataCmd:
-                callBack.onClearAllDataFinished(true);
+                callback.onClearAllDataFinished(true);
                 break;
             case WriteClockCmd:
             case WriteUnitCmd:
             case WriteHandCmd:
-                callbackForWaitCmd(callBack, bleClientCmd);
+                callbackForWaitCmd(callback, bleClientCmd);
                 break;
         }
     }
