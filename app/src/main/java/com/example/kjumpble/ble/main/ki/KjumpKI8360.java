@@ -11,7 +11,7 @@ import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.callback.GattCallback;
 import com.example.kjumpble.ble.callback.ki.KjumpKI8360Callback;
-import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
+import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
@@ -72,7 +72,7 @@ public class KjumpKI8360 implements GattCallback {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.WriteSetDeviceCmd;
         cmd = BLE_CMD.WRITE_SET;
-        writeCharacteristic(Ki8360Cmd.refreshDeviceCmd);
+        writeCharacteristic(KI8360Cmd.setDeviceCmd);
     }
 
     public void readUserIndex () {
@@ -81,7 +81,7 @@ public class KjumpKI8360 implements GattCallback {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.ReadUserAndMemoryCmd;
         cmd = BLE_CMD.CONFIRM_USER_AND_MEMORY;
-        writeCharacteristic(Ki8360Cmd.getConfirmUserAndMemoryCmd());
+        writeCharacteristic(KI8360Cmd.getConfirmUserAndMemoryCmd());
     }
 
     /**
@@ -94,7 +94,7 @@ public class KjumpKI8360 implements GattCallback {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.ReadNumberOfDataCmd;
         cmd = BLE_CMD.CONFIRM_USER_AND_MEMORY;
-        writeCharacteristic(Ki8360Cmd.getConfirmUserAndMemoryCmd());
+        writeCharacteristic(KI8360Cmd.getConfirmUserAndMemoryCmd());
     }
 
     /**
@@ -107,7 +107,7 @@ public class KjumpKI8360 implements GattCallback {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.ReadLatestMemoryCmd;
         cmd = BLE_CMD.CONFIRM_USER_AND_MEMORY;
-        writeCharacteristic(Ki8360Cmd.getConfirmUserAndMemoryCmd());
+        writeCharacteristic(KI8360Cmd.getConfirmUserAndMemoryCmd());
     }
 
     /**
@@ -120,7 +120,7 @@ public class KjumpKI8360 implements GattCallback {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.ReadAllMemoryCmd;
         cmd = BLE_CMD.CONFIRM_USER_AND_MEMORY;
-        writeCharacteristic(Ki8360Cmd.getConfirmUserAndMemoryCmd());
+        writeCharacteristic(KI8360Cmd.getConfirmUserAndMemoryCmd());
     }
 
 //    /**
@@ -148,7 +148,7 @@ public class KjumpKI8360 implements GattCallback {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.ClearAllDataCmd;
         cmd = BLE_CMD.CLEAR_DATA;
-        writeCharacteristic(Ki8360Cmd.getClearDataCmd());
+        writeCharacteristic(KI8360Cmd.getClearDataCmd());
     }
 
     /**
@@ -173,7 +173,7 @@ public class KjumpKI8360 implements GattCallback {
         bleClientCmd = BLE_CLIENT_CMD.WriteClockCmd;
         cmd = BLE_CMD.WRITE_PRE_CLOCK;
 
-        writeCharacteristic(Ki8360Cmd.getWriteClockTimeAndEnabledPreCommand(clock_time));
+        writeCharacteristic(KI8360Cmd.getWriteClockTimeAndEnabledPreCommand(clock_time));
     }
 
     private void writeClockTimePostCmd (ClockTimeFormat clock_time, boolean enabled) {
@@ -181,7 +181,7 @@ public class KjumpKI8360 implements GattCallback {
             return;
         bleClientCmd = BLE_CLIENT_CMD.WriteClockCmd;
         cmd = BLE_CMD.WRITE_POST_CLOCK;
-        writeCharacteristic(Ki8360Cmd.getWriteClockTimeAndEnabledPostCommand(clock_time, enabled));
+        writeCharacteristic(KI8360Cmd.getWriteClockTimeAndEnabledPostCommand(clock_time, enabled));
     }
 
     /**
@@ -196,7 +196,7 @@ public class KjumpKI8360 implements GattCallback {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.WriteReminderCmd;
         cmd = BLE_CMD.WRITE_REMINDER_CLOCK;
-        writeCharacteristic(Ki8360Cmd.getWriteReminderClockTimeAndEnabledCommand(reminder_clock_time, enabled));
+        writeCharacteristic(KI8360Cmd.getWriteReminderClockTimeAndEnabledCommand(reminder_clock_time, enabled));
     }
 
     /**
@@ -209,12 +209,12 @@ public class KjumpKI8360 implements GattCallback {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.WriteUnitCmd;
         cmd = BLE_CMD.WRITE_UNIT;
-        writeCharacteristic(Ki8360Cmd.getWriteTemperatureUnitCmdCommand(unit));
+        writeCharacteristic(KI8360Cmd.getWriteTemperatureUnitCommand(unit));
     }
 
     private void writeRefreshCommand () {
         cmd = BLE_CMD.WRITE_SET;
-        beWroteCharacteristic.setValue(Ki8360Cmd.refreshDeviceCmd);
+        beWroteCharacteristic.setValue(KI8360Cmd.setDeviceCmd);
         gatt.writeCharacteristic(beWroteCharacteristic);
     }
 
@@ -249,11 +249,11 @@ public class KjumpKI8360 implements GattCallback {
             case WRITE_POST_CLOCK:
             case WRITE_REMINDER_CLOCK:
             case WRITE_UNIT:
-                if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+                if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
                     sendCallback();
                 break;
             case WRITE_SET:
-                if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+                if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
                     onGetRefreshCmd(characteristic);
                 break;
         }
@@ -334,7 +334,7 @@ public class KjumpKI8360 implements GattCallback {
             case ReadLatestMemoryCmd:
             case ReadAllMemoryCmd:
                 cmd = BLE_CMD.CONFIRM_NUMBER_OF_DATA;
-                writeCharacteristic(Ki8360Cmd.getConfirmNumberOfDataCmd(user));
+                writeCharacteristic(KI8360Cmd.getConfirmNumberOfDataCmd(user));
                 break;
         }
     }
@@ -357,7 +357,7 @@ public class KjumpKI8360 implements GattCallback {
                 else {
                     dataIndex = numberOfData - 1;
                     cmd = BLE_CMD.READ_DATA;
-                    writeCharacteristic(Ki8360Cmd.getReadDataCmd(dataIndex));
+                    writeCharacteristic(KI8360Cmd.getReadDataCmd(dataIndex));
                 }
                 break;
             case ReadAllMemoryCmd:
@@ -367,7 +367,7 @@ public class KjumpKI8360 implements GattCallback {
                 }
                 else {
                     cmd = BLE_CMD.READ_DATA;
-                    writeCharacteristic(Ki8360Cmd.getReadDataCmd(dataIndex));
+                    writeCharacteristic(KI8360Cmd.getReadDataCmd(dataIndex));
                 }
                 break;
         }
@@ -389,7 +389,7 @@ public class KjumpKI8360 implements GattCallback {
                 if (dataIndex == numberOfData)
                     sendCallback();
                 else
-                    writeCharacteristic(Ki8360Cmd.getReadDataCmd(dataIndex));
+                    writeCharacteristic(KI8360Cmd.getReadDataCmd(dataIndex));
                 break;
         }
     }
@@ -399,7 +399,7 @@ public class KjumpKI8360 implements GattCallback {
      * @param characteristic characteristic
      */
     private void onGetClearDataCmd (BluetoothGattCharacteristic characteristic) {
-        if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+        if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             sendCallback();
     }
 
@@ -408,7 +408,7 @@ public class KjumpKI8360 implements GattCallback {
      * @param characteristic characteristic
      */
     private void onGetPreClockCmd (BluetoothGattCharacteristic characteristic) {
-        if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+        if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             writeClockTimePostCmd(clock_time, enabled);
     }
 
@@ -417,7 +417,7 @@ public class KjumpKI8360 implements GattCallback {
      * @param characteristic characteristic
      */
     private void onGetRefreshCmd (BluetoothGattCharacteristic characteristic) {
-        if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+        if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             switch (bleClientCmd) {
                 case WriteSetDeviceCmd:
                     sendCallback();

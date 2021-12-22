@@ -10,7 +10,7 @@ import com.example.kjumpble.ble.callback.kd.KjumpKD2070Callback;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.cmd.kd.KD2070Cmd;
-import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
+import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
 import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnit;
@@ -57,7 +57,7 @@ public class KjumpKD2070 {
             return;
         dataInit();
         cmd = BLE_CMD.WRITE_SET;
-        writeCharacteristic(Ki8360Cmd.refreshDeviceCmd);
+        writeCharacteristic(KI8360Cmd.setDeviceCmd);
     }
 
     /**
@@ -70,7 +70,7 @@ public class KjumpKD2070 {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.ReadNumberOfDataCmd;
         cmd = BLE_CMD.CONFIRM_NUMBER_OF_DATA;
-        writeCharacteristic(Ki8360Cmd.getConfirmUserAndMemoryCmd());
+        writeCharacteristic(KI8360Cmd.getConfirmUserAndMemoryCmd());
     }
 
     /**
@@ -84,7 +84,7 @@ public class KjumpKD2070 {
         this.indexOfData = indexOfData;
         bleClientCmd = BLE_CLIENT_CMD.ReadIndexMemoryCmd;
         cmd = BLE_CMD.READ_DATA;
-        writeCharacteristic(Ki8360Cmd.getReadDataCmd(indexOfData));
+        writeCharacteristic(KI8360Cmd.getReadDataCmd(indexOfData));
     }
 
     /**
@@ -97,7 +97,7 @@ public class KjumpKD2070 {
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.ClearAllDataCmd;
         cmd = BLE_CMD.CLEAR_DATA;
-        writeCharacteristic(Ki8360Cmd.getClearDataCmd());
+        writeCharacteristic(KI8360Cmd.getClearDataCmd());
     }
 
     /**
@@ -180,7 +180,7 @@ public class KjumpKD2070 {
         Log.d(TAG, "onCharacteristicChanged - " + cmd);
         switch (cmd) {
             case WRITE_SET:
-                if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+                if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
                     onGetRefreshCmd(characteristic);
                 break;
             case CONFIRM_NUMBER_OF_DATA:
@@ -270,7 +270,7 @@ public class KjumpKD2070 {
      * @param characteristic characteristic
      */
     private void onGetClearDataCmd (BluetoothGattCharacteristic characteristic) {
-        if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+        if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             sendCallback();
     }
 
@@ -279,7 +279,7 @@ public class KjumpKD2070 {
      * @param characteristic characteristic
      */
     private void onGetRefreshCmd (BluetoothGattCharacteristic characteristic) {
-        if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+        if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             switch (bleClientCmd) {
                 case WriteSetDeviceCmd:
                 case WriteUnitCmd:
@@ -295,12 +295,12 @@ public class KjumpKD2070 {
      * @param characteristic characteristic
      */
     private void onGetPreClockCmd (BluetoothGattCharacteristic characteristic) {
-        if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+        if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             writeClockTimePostCmd(clock_time);
     }
 
     private void onGetPostClockCmd (BluetoothGattCharacteristic characteristic) {
-        if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+        if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             setDevice();
     }
 
@@ -313,7 +313,7 @@ public class KjumpKD2070 {
     }
 
     private void onGetWriteTemperatureUnitAndHandCmd (BluetoothGattCharacteristic characteristic) {
-        if (Arrays.equals(characteristic.getValue(), Ki8360Cmd.writeReturnCmd))
+        if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             setDevice();
     }
 }
