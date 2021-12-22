@@ -1,7 +1,5 @@
 package com.example.kjumpble.ble.cmd;
 
-import com.example.kjumpble.ble.format.LeftRightHand;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 
 public class SharedCmd {

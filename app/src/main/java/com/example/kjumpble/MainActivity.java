@@ -218,10 +218,10 @@ public class MainActivity extends AppCompatActivity {
 
     // Write reminder time
     private static final ArrayList<ReminderFormat> reminder = new ArrayList<> () {{
-            add(new ReminderFormat(true, 9, 35));
-            add(new ReminderFormat(true, 13, 47));
-            add(new ReminderFormat(true, 17, 21));
-            add(new ReminderFormat(true, 23, 58));
+            add(new ReminderFormat(true, new ReminderTimeFormat(9, 35)));
+            add(new ReminderFormat(true, new ReminderTimeFormat(13,47)));
+            add(new ReminderFormat(true, new ReminderTimeFormat(17,21)));
+            add(new ReminderFormat(true, new ReminderTimeFormat(23,58)));
         }
     };
 

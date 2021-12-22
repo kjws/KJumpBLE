@@ -49,13 +49,13 @@ public class KGSettings {
         int remindersIndex = 0;
         while (reminders.length < 4) {
             int index = remindersIndex * 2;
-            reminders[remindersIndex] = new ReminderFormat(data[8 + index] > 64, data[8 + index] & 0x31, data[9 + index]);
+            reminders[remindersIndex] = new ReminderFormat(data[8 + index] > 64, new ReminderTimeFormat(data[8 + index] & 0x31, data[9 + index]));
             remindersIndex++;
         }
     }
 
     public void setReminders(int index, ReminderTimeFormat reminder_clock_time, boolean enabled) {
-        reminders[index] = new ReminderFormat(enabled, reminder_clock_time.hour, reminder_clock_time.minute);
+        reminders[index] = new ReminderFormat(enabled, reminder_clock_time);
     }
 
     public ReminderFormat[] getReminders () {
