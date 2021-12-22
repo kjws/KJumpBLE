@@ -14,8 +14,10 @@ import com.example.kjumpble.ble.cmd.ki.KI8180Cmd;
 import com.example.kjumpble.ble.cmd.ki.KI8186Cmd;
 import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
+import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.format.ki.KI8180Settings;
+import com.example.kjumpble.ble.format.ki.KI8186Settings;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 import com.example.kjumpble.util.BLEUtil;
@@ -229,6 +231,12 @@ public class KjumpKI8180 {
     public void onCharacteristicChanged (BluetoothGattCharacteristic characteristic) {
         Log.d(TAG, "onCharacteristicChanged - " + cmd);
         switch (cmd) {
+            case READ_SETTING_STEP_1:
+                onGetSettingsStep1(characteristic);
+                break;
+            case READ_SETTING_STEP_2:
+                onGetSettingsStep2(characteristic);
+                break;
             case WRITE_SET:
                 if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
                     onGetSetDeviceCmd(characteristic);
@@ -307,6 +315,32 @@ public class KjumpKI8180 {
     // ***********************
     // **    Write split    **
     // ***********************
+
+    private void onGetSettingsStep1 (BluetoothGattCharacteristic characteristic) {
+        System.arraycopy(characteristic.getValue(), 1, settingsBytes, 0, 18);
+        readSettingStep2();
+    }
+
+    private void onGetSettingsStep2 (BluetoothGattCharacteristic characteristic) {
+        System.arraycopy(characteristic.getValue(), 1, settingsBytes, 18, 6);
+        settings = new KI8180Settings(settingsBytes);
+        switch (bleClientCmd) {
+            case ReadSettingsCmd:
+                sendCallback();
+                break;
+            case WriteClockCmd:
+                writeClockTime(settings.getClockTime());
+                break;
+            case WriteUnitCmd:
+                writeUnit(settings.getUnit());
+                break;
+            case WriteClockFlagCmd:
+                writeClockShowFlag(settings.isClockEnabled());
+                break;
+            case WriteAmbientCmd:
+                writeAmbient(settings.isAmbient());
+        }
+    }
 
     /**
      * onCharacteristicChanged trigger and command is CONFIRM_NUMBER_OF_DATA
