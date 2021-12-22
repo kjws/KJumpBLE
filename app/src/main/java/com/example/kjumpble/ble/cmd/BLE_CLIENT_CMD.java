@@ -9,6 +9,7 @@ public enum BLE_CLIENT_CMD {
     ReadAllMemoryCmd,
     ClearAllDataCmd,
     WriteClockCmd,
+    WriteClockFlagCmd,
     WriteReminderCmd,
     WriteRemindersFlagCmd,
     WriteAmbientCmd,
