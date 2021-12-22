@@ -11,8 +11,6 @@ public class SharedCmd {
             0x04, 0x05, 0x06, 0x07}; // 年月日時
     public static final byte[] writeClockTimePostCmd = new byte[]{0x03, 0x02, 0x00, 0x58,
             0x04, 0x05}; // 分秒
-    public static final byte[] writeClockShowFlagCmd = new byte[]{0x03, 0x01, 0x00, 0x5a,
-            0x04}; // 分秒
     // *************************
     // ****** Clock Time (Pre)
     // ********** 會分為前後是因為一次最多只能修改 4 個記憶體位置
