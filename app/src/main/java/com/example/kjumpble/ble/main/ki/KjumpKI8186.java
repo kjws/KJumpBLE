@@ -26,7 +26,7 @@ import java.util.Arrays;
 
 public class KjumpKI8186 {
     static final String TAG = KjumpKI8186.class.getSimpleName();
-    private final KjumpKI8186Callback callBack;
+    private final KjumpKI8186Callback callback;
     public BluetoothGatt gatt;
     private final BluetoothManager bluetoothManager;
     private BluetoothGattCharacteristic beWroteCharacteristic;
@@ -44,9 +44,9 @@ public class KjumpKI8186 {
     private byte[] settingsBytes = new byte[24];
     private KI8186Settings settings;
 
-    public KjumpKI8186 (BluetoothGatt gatt, KjumpKI8186Callback callBack, BluetoothManager bluetoothManager) {
+    public KjumpKI8186 (BluetoothGatt gatt, KjumpKI8186Callback callback, BluetoothManager bluetoothManager) {
         this.gatt = gatt;
-        this.callBack = callBack;
+        this.callback = callback;
         this.bluetoothManager = bluetoothManager;
     }
 
@@ -322,17 +322,17 @@ public class KjumpKI8186 {
         Log.d(TAG, "sendBroadcast bleClientCmd = " + bleClientCmd + ",cmd = " + cmd);
         switch (bleClientCmd) {
             case WriteSetDeviceCmd:
-                callBack.onSetDeviceFinished(cmd == BLE_CMD.WRITE_SET);
+                callback.onSetDeviceFinished(cmd == BLE_CMD.WRITE_SET);
                 break;
             case ReadNumberOfDataCmd:
                 if (cmd == BLE_CMD.CONFIRM_NUMBER_OF_DATA)
-                    callBack.onGetNumberOfData(numberOfData);
+                    callback.onGetNumberOfData(numberOfData);
                 break;
             case ReadIndexMemoryCmd:
-                callBack.onGetIndexMemory(indexOfData, dataFormatOfKI);
+                callback.onGetIndexMemory(indexOfData, dataFormatOfKI);
                 break;
             case ClearAllDataCmd:
-                callBack.onClearAllDataFinished(true);
+                callback.onClearAllDataFinished(true);
                 break;
             case WriteClockCmd:
             case WriteReminderCmd:
@@ -340,7 +340,7 @@ public class KjumpKI8186 {
             case WriteClockFlagCmd:
             case WriteBeepCmd:
             case WriteOffsetCmd:
-                callbackForWaitCmd(callBack, bleClientCmd);
+                callbackForWaitCmd(callback, bleClientCmd);
                 break;
         }
     }
