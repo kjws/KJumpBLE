@@ -9,6 +9,7 @@ import com.example.kjumpble.ble.LeConnectStatus;
 import com.example.kjumpble.ble.callback.ki.KjumpKI8180Callback;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
+import com.example.kjumpble.ble.cmd.SharedCmd;
 import com.example.kjumpble.ble.cmd.ki.KI8180Cmd;
 import com.example.kjumpble.ble.cmd.ki.KI8186Cmd;
 import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
@@ -149,14 +150,14 @@ public class KjumpKI8180 {
             return;
         cmd = BLE_CMD.WRITE_PRE_CLOCK;
 
-        writeCharacteristic(KI8186Cmd.getWriteClockTimePreCommand(clock_time));
+        writeCharacteristic(SharedCmd.getWriteClockTimePreCommand(clock_time));
     }
 
     private void writeClockTimePostCmd (ClockTimeFormat clock_time) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         cmd = BLE_CMD.WRITE_POST_CLOCK;
-        writeCharacteristic(KI8186Cmd.getWriteClockTimePostCommand(clock_time));
+        writeCharacteristic(SharedCmd.getWriteClockTimePostCommand(clock_time));
     }
 
     /**

@@ -7,65 +7,6 @@ import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 public class KI8186Cmd {
     // *************************
     // ** KI-8186
-    // ****** OFFSET
-    // ********** 韌體顯示的值會根據 offset
-    // ********** when offset 為 (-10 ~ 10)
-    // ********** 調整 C (-1 ~ 1), F (-2 ~ 2)
-    // *****************************
-    // command : 0x03, 0x01, 0x00, 0x65,
-    //           0x08; offset = 8
-    // command[4] : offset
-    public static final byte[] writeOffsetCmd = new byte[] {0x03, 0x01, 0x00, 0x65
-            , 0x04};
-    public static byte[] getWriteOffsetCommand(int offset) {
-        byte[] command = writeOffsetCmd;
-        command [4] = (byte) offset;
-        return command;
-    }
-
-    // ****** CLOCK
-    // ********** 時間
-    public static final byte[] writeClockTimePreCmd = new byte[]{0x03, 0x04, 0x00, 0x54,
-            0x04, 0x05, 0x06, 0x07}; // 年月日時
-    public static final byte[] writeClockTimePostCmd = new byte[]{0x03, 0x02, 0x00, 0x58,
-            0x04, 0x05}; // 分秒
-    public static final byte[] writeClockShowFlagCmd = new byte[]{0x03, 0x01, 0x00, 0x5a,
-            0x04}; // 分秒
-    // *************************
-    // ****** Clock Time (Pre)
-    // ********** 會分為前後是因為一次最多只能修改 4 個記憶體位置
-    // *****************************
-    // command : 0x03, 0x04, 0x00, 0x54,
-    //           0x12, 0x06, 0x13, 0x15; 2012, 6, 19, 21時
-    // command[4] : 年 -> year - 2000
-    // command[5] : 月 -> month
-    // command[6] : 日 -> day
-    // command[7] : 時 -> hour
-    public static byte[] getWriteClockTimePreCommand (ClockTimeFormat time) {
-        byte[] command = writeClockTimePreCmd;
-        command[4] = (byte) (time.year - 2000);
-        command[5] = (byte) time.month;
-        command[6] = (byte) time.day;
-        command[7] = (byte) time.hour;
-        return command;
-    }
-
-    // *************************
-    // ****** Clock Time (Post)
-    // ********** 會分為前後是因為一次最多只能修改 4 個記憶體位置
-    // *****************************
-    // command : 0x03, 0x02, 0x00, 0x58,
-    //           0x25, 0x31; 37分, 49秒
-    // command[4] : 年 -> year - 2000
-    // command[5] : 月 -> month
-    // command[6] : 日 -> day
-    // command[7] : 時 -> hour
-    public static byte[] getWriteClockTimePostCommand (ClockTimeFormat time) {
-        byte[] command = writeClockTimePostCmd;
-        command[4] = (byte) time.minute;
-        command[5] = (byte) time.second;
-        return command;
-    }
 
     // *************************
     // ****** Clock show flag
@@ -121,6 +62,22 @@ public class KI8186Cmd {
         command[3] = (byte) (command[3] + index * 2);
         command[4] = (byte) (time.getHour() + (enabled ? 0x80 : 0x00));
         command[5] = (byte) time.getMinute();
+        return command;
+    }
+
+    // ****** OFFSET
+    // ********** 韌體顯示的值會根據 offset
+    // ********** when offset 為 (-10 ~ 10)
+    // ********** 調整 C (-1 ~ 1), F (-2 ~ 2)
+    // *****************************
+    // command : 0x03, 0x01, 0x00, 0x65,
+    //           0x08; offset = 8
+    // command[4] : offset
+    public static final byte[] writeOffsetCmd = new byte[] {0x03, 0x01, 0x00, 0x65
+            , 0x04};
+    public static byte[] getWriteOffsetCommand(int offset) {
+        byte[] command = writeOffsetCmd;
+        command [4] = (byte) offset;
         return command;
     }
 }
