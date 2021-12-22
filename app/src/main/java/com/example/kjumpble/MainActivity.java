@@ -29,7 +29,6 @@ import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.util.DeviceRegex;
 import com.example.kjumpble.util.MyPermissions;
 import com.example.kjumpble.permission.PermissionRequestCode;

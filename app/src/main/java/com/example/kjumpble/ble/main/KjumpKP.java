@@ -3,7 +3,6 @@ package com.example.kjumpble.ble.main;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.bluetooth.BluetoothManager;
-import android.util.Log;
 
 import com.example.kjumpble.ble.LeConnectStatus;
 import com.example.kjumpble.ble.callback.KjumpKPCallback;
@@ -13,18 +12,15 @@ import com.example.kjumpble.ble.cmd.kp.KPDesCmd;
 import com.example.kjumpble.ble.cmd.kp.KPInnerCmd;
 import com.example.kjumpble.ble.data.KP.memory.KPMemoryFilter;
 import com.example.kjumpble.ble.data.KP.user.KPUserFilter;
-import com.example.kjumpble.ble.format.HourFormat;
 import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPUser;
 import com.example.kjumpble.ble.SenseTimer;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 import com.example.kjumpble.util.BLEUtil;
 
-import java.sql.Struct;
 import java.util.ArrayList;
 
 public class KjumpKP {

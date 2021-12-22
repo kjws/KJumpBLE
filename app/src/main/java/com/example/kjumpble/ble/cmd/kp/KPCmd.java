@@ -1,18 +1,10 @@
 package com.example.kjumpble.ble.cmd.kp;
 
-import android.bluetooth.BluetoothGattCharacteristic;
-import android.util.Log;
-
-import com.example.kjumpble.ble.callback.GattCallback;
-import com.example.kjumpble.ble.format.HourFormat;
 import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 public class KPCmd {
     public byte[] writeClockTimeCmd = new byte[] {0x03,

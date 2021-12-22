@@ -2,8 +2,6 @@ package com.example.kjumpble.util;
 
 import android.util.Log;
 
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
-
 public class KI8186Util {
     public static boolean checkReminderIndexOutOfRange(int index, String TAG) {
         if (index < 0 | index > 3) {
