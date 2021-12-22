@@ -7,13 +7,16 @@ import android.util.Log;
 
 import com.example.kjumpble.ble.LeConnectStatus;
 import com.example.kjumpble.ble.callback.kd.KjumpKD2070Callback;
+import com.example.kjumpble.ble.callback.ki.KjumpKI8186Callback;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
+import com.example.kjumpble.ble.cmd.SharedCmd;
 import com.example.kjumpble.ble.cmd.kd.KD2070Cmd;
 import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
 import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnit;
+import com.example.kjumpble.ble.format.kd.KD2070Settings;
 import com.example.kjumpble.ble.format.kd.KDTemperatureUnitAndHand;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
@@ -28,17 +31,17 @@ public class KjumpKD2070 {
     private final BluetoothManager bluetoothManager;
     private BluetoothGattCharacteristic beWroteCharacteristic;
 
-    int indexOfData;
-    BLE_CMD cmd;
-    BLE_CLIENT_CMD bleClientCmd;
+    private BLE_CMD cmd;
+    private BLE_CLIENT_CMD bleClientCmd;
 
-    DataFormatOfKD dataFormatOfKD;
+    // DATA
+    private DataFormatOfKD dataFormatOfKD;
+    private int indexOfData = 0;
     private int numberOfData = 0;
-    // clock
-    ClockTimeFormat clock_time;
 
-    TemperatureUnit temperatureUnit;
-    LeftRightHand hand;
+    // Settings
+    private byte[] settingsBytes = new byte[24];
+    private KD2070Settings settings;
 
     public KjumpKD2070 (BluetoothGatt gatt, KjumpKD2070Callback callBack, BluetoothManager bluetoothManager) {
         this.gatt = gatt;
@@ -47,8 +50,6 @@ public class KjumpKD2070 {
     }
 
     private void dataInit () {
-        indexOfData = 0;
-        numberOfData = 0;
         beWroteCharacteristic = gatt.getService(KjumpUUIDList.KJUMP_CHARACTERISTIC_CONFIG_UUID).getCharacteristic(KjumpUUIDList.KJUMP_CHARACTERISTIC_WRITE_UUID);
     }
 
@@ -57,6 +58,26 @@ public class KjumpKD2070 {
             return;
         dataInit();
         cmd = BLE_CMD.WRITE_SET;
+        writeCharacteristic(KI8360Cmd.setDeviceCmd);
+    }
+
+    public void readSettings() {
+        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
+            return;
+        dataInit();
+        bleClientCmd = BLE_CLIENT_CMD.ReadSettingsCmd;
+        readSettingStep1();
+    }
+
+    private void readSettingStep1() {
+        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
+            return;
+        cmd = BLE_CMD.READ_SETTING_STEP_1;
+        writeCharacteristic(KI8360Cmd.setDeviceCmd);
+    }
+
+    private void readSettingStep2() {
+        cmd = BLE_CMD.READ_SETTING_STEP_2;
         writeCharacteristic(KI8360Cmd.setDeviceCmd);
     }
 
@@ -101,7 +122,7 @@ public class KjumpKD2070 {
     }
 
     /**
-     * Set device clock time and whether you want to show on device screen.
+     * Set device clock time.
      * Success or not will show in KjumpKI8360Callback.onWriteClockFinished
      * @param clock_time : Time you want to write in device.
      */
@@ -109,41 +130,51 @@ public class KjumpKD2070 {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
-        this.clock_time = clock_time;
 
-        writeClockTimePreCmd(clock_time);
+        bleClientCmd = BLE_CLIENT_CMD.WriteClockCmd;
+
+        if (settings == null) {
+            readSettingStep1();
+        }
+        else {
+            settings.setClockTime(clock_time);
+            writeClockTimePreCmd(clock_time);
+        }
     }
 
     private void writeClockTimePreCmd (ClockTimeFormat clock_time) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
-        bleClientCmd = BLE_CLIENT_CMD.WriteClockCmd;
         cmd = BLE_CMD.WRITE_PRE_CLOCK;
 
-        writeCharacteristic(KD2070Cmd.getWriteClockTimePreCommand(clock_time));
+        writeCharacteristic(SharedCmd.getWriteClockTimePreCommand(clock_time));
     }
 
     private void writeClockTimePostCmd (ClockTimeFormat clock_time) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
-        bleClientCmd = BLE_CLIENT_CMD.WriteClockCmd;
         cmd = BLE_CMD.WRITE_POST_CLOCK;
-
-        writeCharacteristic(KD2070Cmd.getWriteClockTimePostCommand(clock_time));
+        writeCharacteristic(SharedCmd.getWriteClockTimePostCommand(clock_time));
     }
-
 
     /**
      * Write temperature unit like C or F to device.
      * @param unit : C for Celsius, F for Fahrenheit.
      */
-    public void writeTemperatureUnit (TemperatureUnit unit) {
+    public void writeUnit (TemperatureUnit unit) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.WriteUnitCmd;
-        cmd = BLE_CMD.READ_TEMPERATURE_UNIT_AND_HAND;
-        writeCharacteristic(KD2070Cmd.readTempUnitAndHandCmd);
+        cmd = BLE_CMD.WRITE_UNIT;
+
+        if (settings == null) {
+            readSettingStep1();
+        }
+        else {
+            settings.setUnit(unit);
+            writeCharacteristic(KD2070Cmd.writeUnitCmd);
+        }
     }
 
     /**
@@ -155,16 +186,15 @@ public class KjumpKD2070 {
             return;
         dataInit();
         bleClientCmd = BLE_CLIENT_CMD.WriteHandCmd;
-        cmd = BLE_CMD.READ_TEMPERATURE_UNIT_AND_HAND;
-        writeCharacteristic(KD2070Cmd.readTempUnitAndHandCmd);
-    }
+        cmd = BLE_CMD.WRITE_HAND;
 
-    private void writeHandAndUnit (TemperatureUnit unit, LeftRightHand hand) {
-        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
-            return;
-        dataInit();
-        cmd = BLE_CMD.READ_TEMPERATURE_UNIT_AND_HAND;
-        writeCharacteristic(KD2070Cmd.getWriteTempUnitAndHandCmd(unit, hand));
+        if (settings == null) {
+            readSettingStep1();
+        }
+        else {
+            settings.setHand(hand);
+            writeCharacteristic(KD2070Cmd.writeHandCmd);
+        }
     }
 
     private void writeCharacteristic (byte[] command) {
@@ -179,9 +209,15 @@ public class KjumpKD2070 {
     public void onCharacteristicChanged (BluetoothGattCharacteristic characteristic) {
         Log.d(TAG, "onCharacteristicChanged - " + cmd);
         switch (cmd) {
+            case READ_SETTING_STEP_1:
+                onGetSettingsStep1(characteristic);
+                break;
+            case READ_SETTING_STEP_2:
+                onGetSettingsStep2(characteristic);
+                break;
             case WRITE_SET:
                 if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
-                    onGetRefreshCmd(characteristic);
+                    onGetSetDeviceCmd(characteristic);
                 break;
             case CONFIRM_NUMBER_OF_DATA:
                 onGetNumberOfData(characteristic);
@@ -196,13 +232,8 @@ public class KjumpKD2070 {
                 onGetPreClockCmd(characteristic);
                 break;
             case WRITE_POST_CLOCK:
-                onGetPostClockCmd(characteristic);
-                break;
-            case READ_TEMPERATURE_UNIT_AND_HAND:
-                onGetUnitAndHand(characteristic);
-                break;
-            case WRITE_TEMPERATURE_UNIT_AND_HAND:
-                onGetWriteTemperatureUnitAndHandCmd(characteristic);
+            case WRITE_UNIT:
+                onGetWaitCmd(characteristic);
                 break;
         }
     }
@@ -225,23 +256,56 @@ public class KjumpKD2070 {
                 callBack.onClearAllDataFinished(true);
                 break;
             case WriteClockCmd:
-                if (cmd == BLE_CMD.WRITE_SET)
-                    callBack.onWriteClockFinished(true);
-                break;
             case WriteUnitCmd:
-                if (cmd == BLE_CMD.WRITE_SET)
-                    callBack.onWriteUnitFinished(true);
-                break;
             case WriteHandCmd:
-                if (cmd == BLE_CMD.WRITE_SET)
-                    callBack.onWriteHandFinished(true);
+                callbackForWaitCmd(callBack, bleClientCmd);
                 break;
         }
     }
 
+    private void callbackForWaitCmd(KjumpKD2070Callback callback, BLE_CLIENT_CMD bleClientCmd) {
+        switch (bleClientCmd) {
+            case WriteClockCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteClockFinished(true);
+                break;
+            case WriteUnitCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteUnitFinished(true);
+                break;
+            case WriteHandCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteHandFinished(true);
+                break;
+        }
+    }
     // ***********************
     // **    Write split    **
     // ***********************
+
+    private void onGetSettingsStep1 (BluetoothGattCharacteristic characteristic) {
+        System.arraycopy(characteristic.getValue(), 1, settingsBytes, 0, 18);
+        readSettingStep2();
+    }
+
+    private void onGetSettingsStep2 (BluetoothGattCharacteristic characteristic) {
+        System.arraycopy(characteristic.getValue(), 1, settingsBytes, 18, 6);
+        settings = new KD2070Settings(settingsBytes);
+        switch (bleClientCmd) {
+            case ReadSettingsCmd:
+                sendCallback();
+                break;
+            case WriteClockCmd:
+                writeClockTime(settings.getClockTime());
+                break;
+            case WriteUnitCmd:
+                writeUnit(settings.getUnit());
+                break;
+            case WriteHandCmd:
+                writeHand(settings.getHand());
+                break;
+        }
+    }
 
     /**
      * onCharacteristicChanged trigger and command is CONFIRM_NUMBER_OF_DATA
@@ -296,23 +360,25 @@ public class KjumpKD2070 {
      */
     private void onGetPreClockCmd (BluetoothGattCharacteristic characteristic) {
         if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
-            writeClockTimePostCmd(clock_time);
+            writeClockTimePostCmd(settings.getClockTime());
     }
 
-    private void onGetPostClockCmd (BluetoothGattCharacteristic characteristic) {
+    /**
+     * onCharacteristicChanged trigger and command is WRITE_REFRESH_COMMAND
+     * @param characteristic characteristic
+     */
+    private void onGetSetDeviceCmd (BluetoothGattCharacteristic characteristic) {
         if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
-            setDevice();
+            switch (bleClientCmd) {
+                case WriteClockCmd:
+                case WriteUnitCmd:
+                case WriteHandCmd:
+                    sendCallback();
+                    break;
+            }
     }
 
-    private void onGetUnitAndHand (BluetoothGattCharacteristic characteristic) {
-        KDTemperatureUnitAndHand kdTemperatureUnitAndHand = new KDTemperatureUnitAndHand(characteristic);
-        this.temperatureUnit = kdTemperatureUnitAndHand.getUnit();
-        this.hand = kdTemperatureUnitAndHand.getHand();
-
-        writeHandAndUnit(temperatureUnit, hand);
-    }
-
-    private void onGetWriteTemperatureUnitAndHandCmd (BluetoothGattCharacteristic characteristic) {
+    private void onGetWaitCmd (BluetoothGattCharacteristic characteristic) {
         if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             setDevice();
     }

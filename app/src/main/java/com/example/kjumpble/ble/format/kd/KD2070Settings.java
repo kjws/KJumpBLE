@@ -45,7 +45,7 @@ public class KD2070Settings {
     public void setHand(LeftRightHand hand) {
         this.hand = hand;
     }
-    public LeftRightHand geHand () {
+    public LeftRightHand getHand () {
         return hand;
     }
 }

@@ -1,5 +1,7 @@
 package com.example.kjumpble.ble.cmd.kd;
 
+import com.example.kjumpble.ble.cmd.util.KD2070Util;
+import com.example.kjumpble.ble.cmd.util.KI8186Util;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
@@ -7,16 +9,6 @@ import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 public class KD2070Cmd {
     // *************************
     // ** KD-2070
-    // ****** Temperature unit and hand
-    // *****************************
-    public static final byte[] readTempUnitAndHandCmd = new byte[] {0x02, 0x01, 0x00, 0x6B};
-    public static final byte[] writeTempUnitAndHandCmd = new byte[] {0x03, 0x01, 0x00, 0x6B,
-            0x00};
-    public static byte[] getWriteTempUnitAndHandCmd (TemperatureUnit unit, LeftRightHand hand) {
-        byte[] command = writeTempUnitAndHandCmd;
-        command[4] = (byte) ((hand == LeftRightHand.Left ? 2 : 0) | (unit == TemperatureUnit.F ? 1 : 0));
-        return command;
-    }
     // *************************
 
     // clock
@@ -38,6 +30,30 @@ public class KD2070Cmd {
         byte[] command = writeClockTimePostCmd;
         command[4] = (byte) time.minute;
         command[5] = (byte) time.second;
+        return command;
+    }
+
+    // *************************
+    // ****** Unit and Hand
+    // ********** 溫度單位以及手部顯示
+    // *****************************
+    // command : 0x03, 0x02, 0x00, 0x5a,
+    //           0x02; clock 逼逼叫 但不顯示
+    // command[4] : bits[0] : clock 要不要顯示
+    //              bits[1] : beep 要不要開
+    public static final byte[] writeUnitCmd = new byte[]{0x03, 0x01, 0x00, 0x6b,
+            0x04};
+    public static byte[] getWriteUnitCommand(byte data, TemperatureUnit unit) {
+        byte[] command = writeUnitCmd;
+        command [4] = (byte) KD2070Util.getUnitData(data, unit);
+        return command;
+    }
+
+    public static final byte[] writeHandCmd = new byte[] {0x03, 0x01, 0x00, 0x6b
+            , 0x04};
+    public static byte[] getWriteHandCommand(byte data, LeftRightHand hand) {
+        byte[] command = writeHandCmd;
+        command [4] = (byte) KD2070Util.getHandData(data, hand);
         return command;
     }
 }
