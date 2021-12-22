@@ -4,7 +4,7 @@ import com.example.kjumpble.ble.format.HourFormat;
 import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.ble.format.TemperatureUnit;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,14 +23,10 @@ public class KPCmdCalculator {
 
     public static byte[] getReminderBytes (ArrayList<ReminderFormat> reminders) {
         byte[] bytes = writeReminderTimeCmd;
-        bytes[1] = (byte) reminders.get(0).getHour();
-        bytes[2] = (byte) reminders.get(0).getMinute();
-        bytes[3] = (byte) reminders.get(1).getHour();
-        bytes[4] = (byte) reminders.get(1).getMinute();
-        bytes[5] = (byte) reminders.get(2).getHour();
-        bytes[6] = (byte) reminders.get(2).getMinute();
-        bytes[7] = (byte) reminders.get(3).getHour();
-        bytes[9] = (byte) reminders.get(3).getMinute();
+        for (int i = 0; i < 4; i++) {
+            bytes[1 + i * 2] = (byte) reminders.get(i).getTime().getHour();
+            bytes[2 + i * 2] = (byte) reminders.get(i).getTime().getMinute();
+        }
         return getCommand(bytes);
     }
 
@@ -100,7 +96,7 @@ public class KPCmdCalculator {
     private static byte getInformationByte (KPDeviceSetting deviceSetting) {
         byte InformationByte = getReminderEnabledByte(deviceSetting.getReminders());
         InformationByte = deviceSetting.getAmbient() ? (byte) (InformationByte | 0x10) : InformationByte;
-        InformationByte = deviceSetting.getUnit().ordinal() == TemperatureUnitEnum.F.ordinal() ? (byte) (InformationByte | 0x20) : InformationByte;
+        InformationByte = deviceSetting.getUnit().ordinal() == TemperatureUnit.F.ordinal() ? (byte) (InformationByte | 0x20) : InformationByte;
         InformationByte = deviceSetting.getHourFormat() == HourFormat.is12 ? (byte) (InformationByte | 0x40) : InformationByte;//device 布林值為12小時制，避免與reminder的24時制混淆，另創專屬device時制的設定
         InformationByte = deviceSetting.getClockShowFlag() ? (byte) (InformationByte | 0x80) : InformationByte;
         return InformationByte;
