@@ -35,6 +35,10 @@ public abstract class KjumpKI8186Callback {
 
     }
 
+    public void onWriteClockFlagFinished (boolean success) {
+
+    }
+
     public void onWriteReminderFinished (int index, boolean success) {
 
     }
