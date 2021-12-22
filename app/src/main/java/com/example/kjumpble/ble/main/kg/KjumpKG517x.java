@@ -9,6 +9,7 @@ import com.example.kjumpble.ble.LeConnectStatus;
 import com.example.kjumpble.ble.callback.kg.KjumpKG517xCallback;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
+import com.example.kjumpble.ble.cmd.SharedCmd;
 import com.example.kjumpble.ble.cmd.kg.KG517xCmd;
 import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
 import com.example.kjumpble.ble.data.kg.DataFormatOfKG;
@@ -76,12 +77,12 @@ public class KjumpKG517x {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         cmd = BLE_CMD.READ_SETTING_STEP_1;
-        writeCharacteristic(KI8360Cmd.setDeviceCmd);
+        writeCharacteristic(SharedCmd.readSettingPreCmd);
     }
 
     private void readSettingStep2() {
         cmd = BLE_CMD.READ_SETTING_STEP_2;
-        writeCharacteristic(KI8360Cmd.setDeviceCmd);
+        writeCharacteristic(SharedCmd.readSettingPostCmd);
     }
 
     /**

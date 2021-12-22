@@ -46,4 +46,8 @@ public class SharedCmd {
         command[5] = (byte) time.second;
         return command;
     }
+
+
+    public static final byte[] readSettingPreCmd = new byte[]{0x012, 0x01, 0x00, 0x54};
+    public static final byte[] readSettingPostCmd = new byte[]{0x06, 0x01, 0x00, 0x66};
 }

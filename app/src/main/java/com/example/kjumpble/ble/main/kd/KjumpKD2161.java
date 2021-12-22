@@ -111,12 +111,12 @@ public class KjumpKD2161 {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         cmd = BLE_CMD.READ_SETTING_STEP_1;
-        writeCharacteristic(KI8360Cmd.setDeviceCmd);
+        writeCharacteristic(SharedCmd.readSettingPreCmd);
     }
 
     private void readSettingStep2() {
         cmd = BLE_CMD.READ_SETTING_STEP_2;
-        writeCharacteristic(KI8360Cmd.setDeviceCmd);
+        writeCharacteristic(SharedCmd.readSettingPostCmd);
     }
 
     /**
