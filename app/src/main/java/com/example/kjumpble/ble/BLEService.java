@@ -26,6 +26,7 @@ import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPUser;
 import com.example.kjumpble.ble.format.KP.SenseMode;
+import com.example.kjumpble.ble.main.kd.KjumpKD2070;
 import com.example.kjumpble.ble.main.ki.KjumpKI8360;
 import com.example.kjumpble.ble.main.KjumpKP;
 import com.example.kjumpble.util.DeviceRegex;
@@ -71,7 +72,7 @@ public class BLEService extends Service {
 
     KjumpKP kjumpKP;
     KjumpKI8360 kjumpKI8360;
-
+    KjumpKD2070 kjumpKD2070;
 
     @Override
     public void onCreate () {

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <Button
+        android:id="@+id/KD2070ReadNumberOfMemoryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/read_number_of_memory"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/KD2070ReadMemoryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/read_index_memory"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/KD2070ReadNumberOfMemoryButton"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/KD2070SetDeviceButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/set_device"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/KD2070ReadMemoryButton"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/KD2070WriteHand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/write_hand"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/KD2070SetDeviceButton"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/KD2070WriteUnit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/write_unit"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/KD2070WriteHand"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/KD2070ClearMemoryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/clear_all_data"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/KD2070WriteUnit"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/KD2070WriteTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/write_clock_time"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/KD2070ClearMemoryButton"
+        app:layout_constraintVertical_bias="0.00" />
+
+    <Button
+        android:id="@+id/KD2070ReadSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/read_settings"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/KD2070ClearMemoryButton"
+        app:layout_constraintVertical_bias="0.00" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

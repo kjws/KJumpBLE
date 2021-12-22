@@ -41,4 +41,9 @@
     <string name="stop_kp_sense">Stop sense</string>
     <string name="kp_clear_memory">clear memory</string>
     <string name="kp_change_mode">change mode</string>
+<!--    kd-2070 -->
+    <string name="read_settings">Read settings</string>
+    <string name="read_index_memory">Read index memory</string>
+    <string name="write_hand">Write hand</string>
+    <string name="write_unit">Write unit</string>
 </resources>
