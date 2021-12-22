@@ -26,6 +26,7 @@ import com.example.kjumpble.ble.format.HourFormat;
 import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
+import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.format.TemperatureUnitEnum;
@@ -187,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final ClockTimeFormat testClockTime = new ClockTimeFormat(2003, 11, 30, 23, 58, 55);
     private static final ReminderTimeFormat testReminderClockTime = new ReminderTimeFormat(21, 17);
-    private static final TemperatureUnitEnum testTemperatureUnit = TemperatureUnitEnum.F;
+    private static final TemperatureUnit testTemperatureUnit = TemperatureUnit.F;
     private static final boolean testEnable = true;
     // Clock
     private final View.OnClickListener writeClockTimeAndFlagButtonOnClickListener = v -> {

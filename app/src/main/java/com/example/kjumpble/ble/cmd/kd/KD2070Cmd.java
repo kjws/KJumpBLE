@@ -1,7 +1,7 @@
 package com.example.kjumpble.ble.cmd.kd;
 
 import com.example.kjumpble.ble.format.LeftRightHand;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 
 public class KD2070Cmd {
@@ -12,9 +12,9 @@ public class KD2070Cmd {
     public static final byte[] readTempUnitAndHandCmd = new byte[] {0x02, 0x01, 0x00, 0x6B};
     public static final byte[] writeTempUnitAndHandCmd = new byte[] {0x03, 0x01, 0x00, 0x6B,
             0x00};
-    public static byte[] getWriteTempUnitAndHandCmd (TemperatureUnitEnum unit, LeftRightHand hand) {
+    public static byte[] getWriteTempUnitAndHandCmd (TemperatureUnit unit, LeftRightHand hand) {
         byte[] command = writeTempUnitAndHandCmd;
-        command[4] = (byte) ((hand == LeftRightHand.Left ? 2 : 0) | (unit == TemperatureUnitEnum.F ? 1 : 0));
+        command[4] = (byte) ((hand == LeftRightHand.Left ? 2 : 0) | (unit == TemperatureUnit.F ? 1 : 0));
         return command;
     }
     // *************************

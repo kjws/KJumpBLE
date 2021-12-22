@@ -1,7 +1,7 @@
 package com.example.kjumpble.ble.format.ki;
 
 import com.example.kjumpble.ble.format.ReminderFormat;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 
@@ -10,7 +10,7 @@ public class KI8186Settings {
     boolean clockEnabled;
     boolean beepEnabled;
     ReminderFormat[] reminders = new ReminderFormat[4];
-    TemperatureUnitEnum unit = TemperatureUnitEnum.F;
+    TemperatureUnit unit = TemperatureUnit.F;
     int offset = 0;
 
     public KI8186Settings(byte[] data) {
@@ -75,12 +75,12 @@ public class KI8186Settings {
 
     // Unit
     private void setUnit(byte[] data) {
-        this.unit = (data[15] & 0x01) == 0x01 ? TemperatureUnitEnum.F : TemperatureUnitEnum.C;
+        this.unit = (data[15] & 0x01) == 0x01 ? TemperatureUnit.F : TemperatureUnit.C;
     }
-    public void setUnit(TemperatureUnitEnum unit) {
+    public void setUnit(TemperatureUnit unit) {
         this.unit = unit;
     }
-    public TemperatureUnitEnum getUnit () {
+    public TemperatureUnit getUnit () {
         return unit;
     }
 

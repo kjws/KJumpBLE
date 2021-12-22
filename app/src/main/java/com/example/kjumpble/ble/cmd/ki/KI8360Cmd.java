@@ -1,8 +1,8 @@
 package com.example.kjumpble.ble.cmd.ki;
 
+import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
 
 public class KI8360Cmd {
     public static final byte[] readSettingsCmd = new byte[]{0x02, 0x01, 0x00, (byte) 0x54};
@@ -89,7 +89,7 @@ public class KI8360Cmd {
         return command;
     }
 
-    public static byte[] getWriteTemperatureUnitCommand (TemperatureUnitEnum unit) {
+    public static byte[] getWriteTemperatureUnitCommand (TemperatureUnit unit) {
         byte[] command = KI8360Cmd.writeTemperatureUnitCmd;
         byte unitByte = 0x00;
         switch (unit) {

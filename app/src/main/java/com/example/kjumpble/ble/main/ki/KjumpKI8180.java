@@ -13,7 +13,7 @@ import com.example.kjumpble.ble.cmd.kd.KD2070Cmd;
 import com.example.kjumpble.ble.cmd.ki.KI8180Cmd;
 import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 import com.example.kjumpble.util.BLEUtil;
@@ -137,7 +137,7 @@ public class KjumpKI8180 {
      * Write temperature unit like C or F to device.
      * @param unit : C for Celsius, F for Fahrenheit.
      */
-    public void writeTemperatureUnit (TemperatureUnitEnum unit) {
+    public void writeTemperatureUnit (TemperatureUnit unit) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();

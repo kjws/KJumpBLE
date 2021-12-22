@@ -36,7 +36,7 @@ import com.example.kjumpble.ble.callback.OnProgressListener;
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 
 import java.util.ArrayList;
@@ -381,7 +381,7 @@ public class BLEService extends Service {
      * Write temperature unit like C or F to device.
      * @param unit : C for Celsius, F for Fahrenheit.
      */
-    public void writeTemperatureUnit (TemperatureUnitEnum unit) {
+    public void writeTemperatureUnit (TemperatureUnit unit) {
         if (kjumpKI8360 == null)
             return;
         if (kjumpKI8360.gatt == null) {
@@ -570,7 +570,7 @@ public class BLEService extends Service {
             Log.d("test8360", "onWriteReminderClockFinished = " + success);
         }
 
-        //When you call writeTemperatureUnit (TemperatureUnitEnum unit) You will get response here.
+        //When you call writeTemperatureUnit (TemperatureUnit unit) You will get response here.
         @Override
         public void onWriteUnitFinished (boolean success) {
             super.onWriteUnitFinished(success);

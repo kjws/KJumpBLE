@@ -15,7 +15,7 @@ import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 
 import java.util.ArrayList;
@@ -203,7 +203,7 @@ public class KjumpKI8360 implements GattCallback {
      * Write temperature unit like C or F to device.
      * @param unit : C for Celsius, F for Fahrenheit.
      */
-    public void writeTemperatureUnit (TemperatureUnitEnum unit) {
+    public void writeTemperatureUnit (TemperatureUnit unit) {
         if (checkConnectStatus() == LeConnectStatus.DisConnected)
             return;
         dataInit();

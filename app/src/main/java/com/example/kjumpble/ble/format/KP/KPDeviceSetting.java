@@ -2,18 +2,18 @@ package com.example.kjumpble.ble.format.KP;
 
 import com.example.kjumpble.ble.format.HourFormat;
 import com.example.kjumpble.ble.format.ReminderFormat;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.ble.format.TemperatureUnit;
 
 import java.util.ArrayList;
 
 public class KPDeviceSetting {
     ArrayList<ReminderFormat> reminders;
     boolean Ambient;
-    TemperatureUnitEnum unit;
+    TemperatureUnit unit;
     HourFormat hourFormat;
     boolean clockShowFlag;
 
-    public KPDeviceSetting(ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnitEnum unit, HourFormat hourFormat, boolean clockShowFlag) {
+    public KPDeviceSetting(ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnit unit, HourFormat hourFormat, boolean clockShowFlag) {
         this.reminders = reminders;
         this.Ambient = Ambient;
         this.unit = unit;
@@ -29,7 +29,7 @@ public class KPDeviceSetting {
         return hourFormat;
     }
 
-    public TemperatureUnitEnum getUnit () {
+    public TemperatureUnit getUnit () {
         return unit;
     }
 

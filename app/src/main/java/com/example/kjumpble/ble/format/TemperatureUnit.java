@@ -1,6 +1,6 @@
 package com.example.kjumpble.ble.format;
 
-public enum TemperatureUnitEnum {
+public enum TemperatureUnit {
     C,
     F
 }

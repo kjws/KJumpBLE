@@ -13,7 +13,7 @@ import com.example.kjumpble.ble.cmd.kd.KD2070Cmd;
 import com.example.kjumpble.ble.cmd.ki.Ki8360Cmd;
 import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
 import com.example.kjumpble.ble.format.LeftRightHand;
-import com.example.kjumpble.ble.format.TemperatureUnitEnum;
+import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.format.kd.KDTemperatureUnitAndHand;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
@@ -37,7 +37,7 @@ public class KjumpKD2070 {
     // clock
     ClockTimeFormat clock_time;
 
-    TemperatureUnitEnum temperatureUnit;
+    TemperatureUnit temperatureUnit;
     LeftRightHand hand;
 
     public KjumpKD2070 (BluetoothGatt gatt, KjumpKD2070Callback callBack, BluetoothManager bluetoothManager) {
@@ -137,7 +137,7 @@ public class KjumpKD2070 {
      * Write temperature unit like C or F to device.
      * @param unit : C for Celsius, F for Fahrenheit.
      */
-    public void writeTemperatureUnit (TemperatureUnitEnum unit) {
+    public void writeTemperatureUnit (TemperatureUnit unit) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -159,7 +159,7 @@ public class KjumpKD2070 {
         writeCharacteristic(KD2070Cmd.readTempUnitAndHandCmd);
     }
 
-    private void writeHandAndUnit (TemperatureUnitEnum unit, LeftRightHand hand) {
+    private void writeHandAndUnit (TemperatureUnit unit, LeftRightHand hand) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
