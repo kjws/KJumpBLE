@@ -16,7 +16,8 @@ public class KI8186Cmd {
     //           0x01; clock 顯示 但不逼逼叫
     // command[4] : bits[0] : clock 要不要顯示
     //              bits[1] : beep 要不要開
-
+    public static final byte[] writeClockShowFlagCmd = new byte[]{0x03, 0x01, 0x00, 0x5a,
+            0x04}; // 分秒
     public static byte[] getWriteClockShowFlagCommand(byte data, boolean clockFlag) {
         byte[] command = writeClockShowFlagCmd;
         command[4] = (byte) KI8186Util.getClockData(data, clockFlag);
