@@ -1,6 +1,8 @@
 package com.example.kjumpble.ble.callback.ki;
 
 import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
+import com.example.kjumpble.ble.format.kg.KGSettings;
+import com.example.kjumpble.ble.format.ki.KI8186Settings;
 
 public abstract class KjumpKI8186Callback {
     public void onSetDeviceFinished (boolean success) {
@@ -40,6 +42,10 @@ public abstract class KjumpKI8186Callback {
     }
 
     public void onWriteReminderFinished (int index, boolean success) {
+
+    }
+
+    public void onReadSettings (KI8186Settings settings) {
 
     }
 }

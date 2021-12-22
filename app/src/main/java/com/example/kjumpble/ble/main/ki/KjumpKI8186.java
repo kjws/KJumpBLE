@@ -321,6 +321,9 @@ public class KjumpKI8186 {
     private void sendCallback () {
         Log.d(TAG, "sendBroadcast bleClientCmd = " + bleClientCmd + ",cmd = " + cmd);
         switch (bleClientCmd) {
+            case ReadSettingsCmd:
+                callback.onReadSettings(settings);
+                break;
             case WriteSetDeviceCmd:
                 callback.onSetDeviceFinished(cmd == BLE_CMD.WRITE_SET);
                 break;
