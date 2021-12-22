@@ -31,4 +31,12 @@ public abstract class KjumpKI8180Callback {
     public void onWriteClockFinished (boolean success) {
 
     }
+
+    public void onWriteClockFlagFinished (boolean success) {
+
+    }
+
+    public void onWriteReminderFinished (int index, boolean success) {
+
+    }
 }
