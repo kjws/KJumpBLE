@@ -30,4 +30,8 @@ public abstract class KjumpKD2161Callback {
     public void onWriteReminderClockFinished (boolean success) {
 
     }
+
+    public void onWriteClockFlagFinished (boolean success) {
+
+    }
 }
