@@ -25,23 +25,23 @@ import java.util.Arrays;
 
 public class KjumpKI8186 {
     static final String TAG = KjumpKI8186.class.getSimpleName();
-
     private final KjumpKI8186Callback callBack;
-
-    BLE_CMD cmd;
-    BLE_CLIENT_CMD bleClientCmd;
-
     public BluetoothGatt gatt;
     private final BluetoothManager bluetoothManager;
-    int numberOfData = 0;
-    int indexOfData = 0;
-    int indexOfReminder = 0;
-    DataFormatOfKI dataFormatOfKI;
-    BluetoothGattCharacteristic beWroteCharacteristic;
+    private BluetoothGattCharacteristic beWroteCharacteristic;
+
+    private BLE_CMD cmd;
+    private BLE_CLIENT_CMD bleClientCmd;
+
+    // DATA
+    private DataFormatOfKI dataFormatOfKI;
+    private int numberOfData = 0;
+    private int indexOfData = 0;
+    private int indexOfReminder = 0;
 
     // Settings
-    byte[] settingsBytes = new byte[24];
-    KI8186Settings settings;
+    private byte[] settingsBytes = new byte[24];
+    private KI8186Settings settings;
 
     public KjumpKI8186 (BluetoothGatt gatt, KjumpKI8186Callback callBack, BluetoothManager bluetoothManager) {
         this.gatt = gatt;
