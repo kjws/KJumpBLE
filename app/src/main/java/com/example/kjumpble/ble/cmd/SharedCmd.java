@@ -10,8 +10,8 @@ public class SharedCmd {
     public static byte[] getReadRemindersCommand (int index, ReminderTimeFormat time, boolean enabled) {
         byte[] command = readRemindersCmd;
         command[3] = (byte) ((byte) 0x5e + 2 * index);
-        command[4] = (byte) (time.hour + (enabled ? 0x80 : 0x00));
-        command[5] = (byte) time.minute;
+        command[4] = (byte) (time.getHour() + (enabled ? 0x80 : 0x00));
+        command[5] = (byte) time.getMinute();
         return command;
     }
     // ********** Write
@@ -20,8 +20,8 @@ public class SharedCmd {
     public static byte[] getWriteRemindersCommand (int index, ReminderTimeFormat time, boolean enabled) {
         byte[] command = writeRemindersCmd;
         command[3] = (byte) ((byte) 0x5e + 2 * index);
-        command[4] = (byte) (time.hour + (enabled ? 0x80 : 0x00));
-        command[5] = (byte) time.minute;
+        command[4] = (byte) (time.getHour() + (enabled ? 0x80 : 0x00));
+        command[5] = (byte) time.getMinute();
         return command;
     }
     // *************************
