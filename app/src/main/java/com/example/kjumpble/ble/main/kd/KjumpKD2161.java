@@ -15,10 +15,8 @@ import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
 import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
-import com.example.kjumpble.ble.format.kd.KD2070Settings;
 import com.example.kjumpble.ble.format.kd.KD2161Settings;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
-import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 import com.example.kjumpble.util.BLEUtil;
 
