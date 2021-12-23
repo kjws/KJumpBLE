@@ -90,12 +90,6 @@ public class KjumpKP {
         writeCharacteristic(KPCmd.getReadMemoryCommand(index));
     }
 
-    public void readAllMemory () {
-        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
-            return;
-        dataInit();
-    }
-
     public void readNumberOfMemory () {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
