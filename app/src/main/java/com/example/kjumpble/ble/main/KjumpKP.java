@@ -28,14 +28,13 @@ public class KjumpKP {
     private final KjumpKPCallback kjumpKPCallback;
     public BluetoothGatt gatt;
     private final BluetoothManager bluetoothManager;
-    private int memoryIndex;
-    private int numberOfMemory;
 
     BluetoothGattCharacteristic beWroteCharacteristic;
 
     KPDesCmd destinyCommand = KPDesCmd.Nothing;
 
     KPInnerCmd innerCmd = KPInnerCmd.Nothing;
+
     // Sense Timer
     SenseTimer senseTimer;
 
@@ -50,11 +49,6 @@ public class KjumpKP {
     }
 
     private void dataInit () {
-//        dataFormatOfKI8360s = new ArrayList<>();
-//        dataIndex = 0;
-//        numberOfData = 0;
-//        user = 0;
-//        dataStartPosition = 0;
         beWroteCharacteristic = gatt.getService(KjumpUUIDList.KJUMP_CHARACTERISTIC_CONFIG_UUID).getCharacteristic(KjumpUUIDList.KJUMP_CHARACTERISTIC_WRITE_UUID);
     }
 
