@@ -29,7 +29,7 @@ import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.util.DeviceRegex;
 import com.example.kjumpble.util.MyPermissions;
@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
         bleService.writeCommand(BLE_CLIENT_CMD.ClearAllDataCmd);
     };
 
-    private static final ClockTimeFormat testClockTime = new ClockTimeFormat(2003, 11, 30, 23, 58, 55);
+    private static final DeviceTimeFormat testClockTime = new DeviceTimeFormat(2003, 11, 30, 23, 58, 55);
     private static final ReminderTimeFormat testReminderClockTime = new ReminderTimeFormat(21, 17);
     private static final TemperatureUnit testTemperatureUnit = TemperatureUnit.F;
     private static final boolean testEnable = true;
@@ -399,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
         clearDataButton = findViewById(R.id.KD2070ClearMemoryButton);
         clearDataButton.setOnClickListener(v -> bleService.kd2070ClearData());
 
-        ClockTimeFormat clockTime = new ClockTimeFormat(2015,5,13,17,25,31);
+        DeviceTimeFormat clockTime = new DeviceTimeFormat(2015,5,13,17,25,31);
         writeClockButton = findViewById(R.id.KD2070WriteTime);
         writeClockButton.setOnClickListener(v -> bleService.kd2070WriteClock(clockTime));
 

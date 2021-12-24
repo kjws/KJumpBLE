@@ -13,7 +13,7 @@ import com.example.kjumpble.ble.callback.GattCallback;
 import com.example.kjumpble.ble.callback.ki.KjumpKI8360Callback;
 import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
 import com.example.kjumpble.ble.data.ki.KIData;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
@@ -38,7 +38,7 @@ public class KjumpKI8360 implements GattCallback {
     BluetoothGattCharacteristic beWroteCharacteristic;
 
     // clock
-    ClockTimeFormat clock_time;
+    DeviceTimeFormat clock_time;
     boolean enabled;
 
     private final KjumpKI8360Callback kjumpKI8360Callback;
@@ -157,7 +157,7 @@ public class KjumpKI8360 implements GattCallback {
      * @param clock_time : Time you want to write in device.
      * @param enabled : True if you want to show clock in your screen.
      */
-    public void writeClockTimeAndShowFlag (ClockTimeFormat clock_time, boolean enabled) {
+    public void writeClockTimeAndShowFlag (DeviceTimeFormat clock_time, boolean enabled) {
         if (checkConnectStatus() == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -167,7 +167,7 @@ public class KjumpKI8360 implements GattCallback {
         writeClockTimePreCmd(clock_time);
     }
 
-    private void writeClockTimePreCmd (ClockTimeFormat clock_time) {
+    private void writeClockTimePreCmd (DeviceTimeFormat clock_time) {
         if (checkConnectStatus() == LeConnectStatus.DisConnected)
             return;
         bleClientCmd = BLE_CLIENT_CMD.WriteClockCmd;
@@ -176,7 +176,7 @@ public class KjumpKI8360 implements GattCallback {
         writeCharacteristic(KI8360Cmd.getWriteClockTimeAndEnabledPreCommand(clock_time));
     }
 
-    private void writeClockTimePostCmd (ClockTimeFormat clock_time, boolean enabled) {
+    private void writeClockTimePostCmd (DeviceTimeFormat clock_time, boolean enabled) {
         if (checkConnectStatus() == LeConnectStatus.DisConnected)
             return;
         bleClientCmd = BLE_CLIENT_CMD.WriteClockCmd;

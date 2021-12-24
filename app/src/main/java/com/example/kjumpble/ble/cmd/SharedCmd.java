@@ -1,8 +1,6 @@
 package com.example.kjumpble.ble.cmd;
 
-import com.example.kjumpble.ble.cmd.util.KI8186Util;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
-import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 
 public class SharedCmd {
     // ****** CLOCK
@@ -21,7 +19,7 @@ public class SharedCmd {
     // command[5] : 月 -> month
     // command[6] : 日 -> day
     // command[7] : 時 -> hour
-    public static byte[] getWriteClockTimePreCommand (ClockTimeFormat time) {
+    public static byte[] getWriteClockTimePreCommand (DeviceTimeFormat time) {
         byte[] command = writeClockTimePreCmd;
         command[4] = (byte) (time.getYear() - 2000);
         command[5] = (byte) time.getMonth();
@@ -40,7 +38,7 @@ public class SharedCmd {
     // command[5] : 月 -> month
     // command[6] : 日 -> day
     // command[7] : 時 -> hour
-    public static byte[] getWriteClockTimePostCommand (ClockTimeFormat time) {
+    public static byte[] getWriteClockTimePostCommand (DeviceTimeFormat time) {
         byte[] command = writeClockTimePostCmd;
         command[4] = (byte) time.getMinute();
         command[5] = (byte) time.getSecond();

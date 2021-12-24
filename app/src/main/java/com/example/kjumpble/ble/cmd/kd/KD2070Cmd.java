@@ -1,10 +1,9 @@
 package com.example.kjumpble.ble.cmd.kd;
 
 import com.example.kjumpble.ble.cmd.util.KD2070Util;
-import com.example.kjumpble.ble.cmd.util.KI8186Util;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnit;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 
 public class KD2070Cmd {
     // *************************
@@ -17,7 +16,7 @@ public class KD2070Cmd {
     public static final byte[] writeClockTimePostCmd = new byte[]{0x03, 0x02, 0x00, 0x58,
             0x05, 0x06}; // 分秒
 
-    public static byte[] getWriteClockTimePreCommand (ClockTimeFormat time) {
+    public static byte[] getWriteClockTimePreCommand (DeviceTimeFormat time) {
         byte[] command = writeClockTimePreCmd;
         command[4] = (byte) (time.getYear() - 2000);
         command[5] = (byte) time.getMonth();
@@ -26,7 +25,7 @@ public class KD2070Cmd {
         return command;
     }
 
-    public static byte[] getWriteClockTimePostCommand (ClockTimeFormat time) {
+    public static byte[] getWriteClockTimePostCommand (DeviceTimeFormat time) {
         byte[] command = writeClockTimePostCmd;
         command[4] = (byte) time.getMinute();
         command[5] = (byte) time.getSecond();

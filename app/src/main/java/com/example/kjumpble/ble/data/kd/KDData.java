@@ -2,11 +2,10 @@ package com.example.kjumpble.ble.data.kd;
 
 import android.util.Log;
 
-import com.example.kjumpble.ble.SensePositionEnum;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 
 public class KDData {
-    ClockTimeFormat time;
+    DeviceTimeFormat time;
     float Temperature;
 
     public KDData (byte[] data) {
@@ -16,13 +15,13 @@ public class KDData {
         int Hour = data[4];
         int Minute = data[5];
         int Second = data[6];
-        time = new ClockTimeFormat(Year, Month, Day, Hour, Minute, Second);
+        time = new DeviceTimeFormat(Year, Month, Day, Hour, Minute, Second);
         Temperature = (float) (((data[7] & 0xff) + (data[8] & 0xff) * 256) / 100.0);
 
 //        logAll();
     }
 
-    public ClockTimeFormat getTime () {
+    public DeviceTimeFormat getTime () {
         return time;
     }
 

@@ -2,8 +2,6 @@ package com.example.kjumpble.ble.cmd.ki;
 
 import com.example.kjumpble.ble.cmd.util.KI8186Util;
 import com.example.kjumpble.ble.format.ReminderFormat;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
-import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 
 public class KI8186Cmd {
     // *************************

@@ -1,13 +1,12 @@
 package com.example.kjumpble.ble.format.kd;
 
-import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 
 public class KD2161Settings {
-    ClockTimeFormat clockTime;
+    DeviceTimeFormat clockTime;
     boolean clockEnabled;
 
     ReminderFormat reminder;
@@ -22,13 +21,13 @@ public class KD2161Settings {
     }
     // Time
     private void setClockTime(byte[] data) {
-        this.clockTime = new ClockTimeFormat(data[0] + 2000, data[1], data[2],
+        this.clockTime = new DeviceTimeFormat(data[0] + 2000, data[1], data[2],
                 data[3], data[4], data[5]);
     }
-    public void setClockTime (ClockTimeFormat clockTime) {
+    public void setClockTime (DeviceTimeFormat clockTime) {
         this.clockTime = clockTime;
     }
-    public ClockTimeFormat getClockTime () {
+    public DeviceTimeFormat getClockTime () {
         return clockTime;
     }
 

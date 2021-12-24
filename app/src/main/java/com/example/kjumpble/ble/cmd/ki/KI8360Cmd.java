@@ -1,7 +1,7 @@
 package com.example.kjumpble.ble.cmd.ki;
 
 import com.example.kjumpble.ble.format.TemperatureUnit;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 
 public class KI8360Cmd {
@@ -56,7 +56,7 @@ public class KI8360Cmd {
         return KI8360Cmd.clearDataCmd;
     }
 
-    public static byte[] getWriteClockTimeAndEnabledPreCommand (ClockTimeFormat time) {
+    public static byte[] getWriteClockTimeAndEnabledPreCommand (DeviceTimeFormat time) {
         byte[] command = KI8360Cmd.writeClockTimeAndFlagPreCmd;
         command[4] = (byte) (time.getYear() - 2000);
         command[5] = (byte) time.getMonth();
@@ -65,7 +65,7 @@ public class KI8360Cmd {
         return command;
     }
 
-    public static byte[] getWriteClockTimeAndEnabledPostCommand (ClockTimeFormat time, boolean enabled) {
+    public static byte[] getWriteClockTimeAndEnabledPostCommand (DeviceTimeFormat time, boolean enabled) {
         byte[] command = KI8360Cmd.writeClockTimeAndFlagPostCmd;
         command[4] = (byte) time.getMinute();
         command[5] = (byte) time.getSecond();

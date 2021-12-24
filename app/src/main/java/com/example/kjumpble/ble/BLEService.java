@@ -33,13 +33,13 @@ import com.example.kjumpble.ble.format.kd.KD2070Settings;
 import com.example.kjumpble.ble.main.kd.KjumpKD2070;
 import com.example.kjumpble.ble.main.ki.KjumpKI8360;
 import com.example.kjumpble.ble.main.KjumpKP;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 import com.example.kjumpble.util.DeviceRegex;
 import com.example.kjumpble.util.Helper;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.callback.OnProgressListener;
 import com.example.kjumpble.ble.data.ki.KIData;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
@@ -385,7 +385,7 @@ public class BLEService extends Service {
      * @param clock_time : Time you want to write in device.
      * @param enabled : True if you want to show clock in your screen.
      */
-    public void writeClockTimeAndShowFlag (ClockTimeFormat clock_time, boolean enabled) {
+    public void writeClockTimeAndShowFlag (DeviceTimeFormat clock_time, boolean enabled) {
         if (kjumpKI8360 == null) {
             Log.w("test8360", "kjump8360 not initialized");
             return;
@@ -539,7 +539,7 @@ public class BLEService extends Service {
         kjumpKD2070.readSettings();
     }
 
-    public void kd2070WriteClock (ClockTimeFormat clock_time) {
+    public void kd2070WriteClock (DeviceTimeFormat clock_time) {
         kjumpKD2070.writeClockTime(clock_time);
     }
     /**
@@ -571,7 +571,7 @@ public class BLEService extends Service {
             Log.d("test8360", "GetLastMemory");
 
             if (data != null) {
-                ClockTimeFormat time = data.getTime();
+                DeviceTimeFormat time = data.getTime();
                 int year = time.getYear();
                 int month = time.getMonth();
                 int day = time.getDay();
@@ -600,7 +600,7 @@ public class BLEService extends Service {
             }
 
             for (int i = 0; i < data.size(); i++) {
-                ClockTimeFormat time = data.get(i).getTime();
+                DeviceTimeFormat time = data.get(i).getTime();
                 int year = time.getYear();
                 int month = time.getMonth();
                 int day = time.getDay();
@@ -624,7 +624,7 @@ public class BLEService extends Service {
         }
 
         // When you call writeReminderClockTimeAndEnabled (ReminderTimeFormat reminder_clock_time,
-        // boolean enabled) and writeClockTimeAndShowFlag (ClockTimeFormat clock_time,
+        // boolean enabled) and writeClockTimeAndShowFlag (DeviceTimeFormat clock_time,
         // boolean enabled). You will get response here.
         @Override
         public void onWriteClockFinished (boolean success) {
@@ -706,7 +706,7 @@ public class BLEService extends Service {
         public void onGetDataAtIndex (int index, KDData data) {
             super.onGetDataAtIndex(index, data);
 
-            ClockTimeFormat time = data.getTime();
+            DeviceTimeFormat time = data.getTime();
             Log.d("testKD2070", "onGetIndexMemory index = " + index);
             Log.d("testKD2070", "onGetIndexMemory Year = " + time.getYear());
             Log.d("testKD2070", "onGetIndexMemory Month = " + time.getMonth());
@@ -749,7 +749,7 @@ public class BLEService extends Service {
         public void onGetSettings (KD2070Settings settings) {
             super.onGetSettings(settings);
 
-            ClockTimeFormat time = settings.getClockTime();
+            DeviceTimeFormat time = settings.getClockTime();
             Log.d("testKD2070", "onReadSettings year = " + time.getYear());
             Log.d("testKD2070", "onReadSettings month = " + time.getMonth());
             Log.d("testKD2070", "onReadSettings day = " + time.getDay());

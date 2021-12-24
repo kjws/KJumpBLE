@@ -1,13 +1,13 @@
 package com.example.kjumpble.ble.timeFormat;
 
-public class ClockTimeFormat {
+public class DeviceTimeFormat {
     int year;
     int month;
     int day;
     int hour;
     int minute;
     int second;
-    public ClockTimeFormat (int year, int month, int day, int hour, int minute, int second) {
+    public DeviceTimeFormat (int year, int month, int day, int hour, int minute, int second) {
         this.year = year;
         this.month = month;
         this.day = day;

@@ -16,7 +16,7 @@ import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
 import com.example.kjumpble.ble.data.ki.KIData;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.format.ki.KI8180Settings;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
 import com.example.kjumpble.util.BLEUtil;
 
@@ -123,7 +123,7 @@ public class KjumpKI8180 {
      * Success or not will show in KjumpKI8360Callback.onWriteClockFinished
      * @param clock_time : Time you want to write in device.
      */
-    public void writeClockTime (ClockTimeFormat clock_time) {
+    public void writeClockTime (DeviceTimeFormat clock_time) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -139,7 +139,7 @@ public class KjumpKI8180 {
         }
     }
 
-    private void writeClockTimePreCmd (ClockTimeFormat clock_time) {
+    private void writeClockTimePreCmd (DeviceTimeFormat clock_time) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         cmd = BLE_CMD.WRITE_PRE_CLOCK;
@@ -147,7 +147,7 @@ public class KjumpKI8180 {
         writeCharacteristic(SharedCmd.getWriteClockTimePreCommand(clock_time));
     }
 
-    private void writeClockTimePostCmd (ClockTimeFormat clock_time) {
+    private void writeClockTimePostCmd (DeviceTimeFormat clock_time) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         cmd = BLE_CMD.WRITE_POST_CLOCK;

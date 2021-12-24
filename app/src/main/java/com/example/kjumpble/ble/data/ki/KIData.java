@@ -1,16 +1,12 @@
 package com.example.kjumpble.ble.data.ki;
 
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.util.Log;
 
 import com.example.kjumpble.ble.SensePositionEnum;
-import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
-
-import java.io.Serializable;
+import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 
 public class KIData {
-    ClockTimeFormat time;
+    DeviceTimeFormat time;
     public int SensePosition;
     public float Temperature;
 
@@ -20,7 +16,7 @@ public class KIData {
         int Day = data[3];
         int Hour = data[4];
         int Minute = data[5];
-        time = new ClockTimeFormat(Year, Month, Day, Hour, Minute, 0);
+        time = new DeviceTimeFormat(Year, Month, Day, Hour, Minute, 0);
         SensePosition = calSensePosition(data[6]);
         Temperature = (float) (((data[7] & 0xff) * 256 + (data[8] & 0xff)) / 100.0);
 
@@ -49,7 +45,7 @@ public class KIData {
         Log.d("test8360", "Temperature = " + Temperature);
     }
 
-    public ClockTimeFormat getTime () {
+    public DeviceTimeFormat getTime () {
         return time;
     }
 
