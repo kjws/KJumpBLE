@@ -66,8 +66,8 @@ public class KI8186Settings {
             remindersIndex++;
         }
     }
-    public void setReminders(int index, ReminderTimeFormat reminder_clock_time, boolean enabled) {
-        reminders[index] = new ReminderFormat(enabled, reminder_clock_time);
+    public void setReminders(int index, ReminderFormat reminder) {
+        reminders[index] = new ReminderFormat(reminder.isEnable(), reminder.getTime());
     }
     public ReminderFormat[] getReminders () {
         return reminders;

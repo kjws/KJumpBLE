@@ -1,6 +1,7 @@
 package com.example.kjumpble.ble.cmd.ki;
 
 import com.example.kjumpble.ble.cmd.util.KI8186Util;
+import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 
@@ -58,11 +59,11 @@ public class KI8186Cmd {
     // command[5] : 分鐘
     public static final byte[] writeReminderClockTimeAndFlagCmd = new byte[]{0x03, 0x02, 0x00, 0x5c,
             0x01, 0x02}; // (enable時)分
-    public static byte[] getWriteReminderAndFlagCommand(int index, ReminderTimeFormat time, boolean enabled) {
+    public static byte[] getWriteReminderAndFlagCommand(int index, ReminderFormat reminder) {
         byte[] command = writeReminderClockTimeAndFlagCmd;
         command[3] = (byte) (command[3] + index * 2);
-        command[4] = (byte) (time.getHour() + (enabled ? 0x80 : 0x00));
-        command[5] = (byte) time.getMinute();
+        command[4] = (byte) (reminder.getTime().getHour() + (reminder.isEnable() ? 0x80 : 0x00));
+        command[5] = (byte) reminder.getTime().getMinute();
         return command;
     }
 

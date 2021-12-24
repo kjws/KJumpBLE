@@ -23,10 +23,10 @@ public class SharedCmd {
     // command[7] : 時 -> hour
     public static byte[] getWriteClockTimePreCommand (ClockTimeFormat time) {
         byte[] command = writeClockTimePreCmd;
-        command[4] = (byte) (time.year - 2000);
-        command[5] = (byte) time.month;
-        command[6] = (byte) time.day;
-        command[7] = (byte) time.hour;
+        command[4] = (byte) (time.getYear() - 2000);
+        command[5] = (byte) time.getMonth();
+        command[6] = (byte) time.getDay();
+        command[7] = (byte) time.getHour();
         return command;
     }
 
@@ -42,8 +42,8 @@ public class SharedCmd {
     // command[7] : 時 -> hour
     public static byte[] getWriteClockTimePostCommand (ClockTimeFormat time) {
         byte[] command = writeClockTimePostCmd;
-        command[4] = (byte) time.minute;
-        command[5] = (byte) time.second;
+        command[4] = (byte) time.getMinute();
+        command[5] = (byte) time.getSecond();
         return command;
     }
 

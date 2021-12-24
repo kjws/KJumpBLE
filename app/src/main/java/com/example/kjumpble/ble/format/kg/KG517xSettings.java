@@ -7,39 +7,43 @@ import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 
 import java.util.Calendar;
 
-public class KGSettings {
+public class KG517xSettings {
     ClockTimeFormat clockTime;
-
     boolean clockEnabled;
 
     ReminderFormat[] reminders = new ReminderFormat[4];
+
     KGGlucoseUnit unit = KGGlucoseUnit.MgDl;
+
     LeftRightHand hand = LeftRightHand.Left;
 
-    public KGSettings(byte[] data) {
-        setTimeAndShowFlag(data);
+    public KG517xSettings (byte[] data) {
+        setClockTime(data);
+        setClockEnabled(data);
         setReminder(data);
         setUnit(data);
         setHand(data);
     }
 
     // Time
-    private void setTimeAndShowFlag(byte[] data) {
+    private void setClockTime(byte[] data) {
         this.clockTime = new ClockTimeFormat(data[0] + 2000, data[1], data[2],
-                data[3], data[4], 0);
-        this.clockEnabled = data[6] > 64;
+                data[3], data[4], data[5]);
     }
-
-    public void setTimeAndShowFlag(ClockTimeFormat clock_time, boolean enabled) {
-        this.clockTime = clock_time;
-
-        this.clockEnabled = enabled;
+    public void setClockTime (ClockTimeFormat clockTime) {
+        this.clockTime = clockTime;
     }
-
     public ClockTimeFormat getClockTime () {
         return clockTime;
     }
 
+    // Clock enabled
+    private void setClockEnabled(byte[] data) {
+        this.clockEnabled = data[6] > 64;
+    }
+    public void setClockEnabled (boolean clockEnabled) {
+        this.clockEnabled = clockEnabled;
+    }
     public boolean isClockEnabled () {
         return clockEnabled;
     }
@@ -54,8 +58,8 @@ public class KGSettings {
         }
     }
 
-    public void setReminders(int index, ReminderTimeFormat reminder_clock_time, boolean enabled) {
-        reminders[index] = new ReminderFormat(enabled, reminder_clock_time);
+    public void setReminders(int index, ReminderFormat reminder) {
+        reminders[index] = new ReminderFormat(reminder.isEnable(), reminder.getTime());
     }
 
     public ReminderFormat[] getReminders () {

@@ -58,17 +58,17 @@ public class KI8360Cmd {
 
     public static byte[] getWriteClockTimeAndEnabledPreCommand (ClockTimeFormat time) {
         byte[] command = KI8360Cmd.writeClockTimeAndFlagPreCmd;
-        command[4] = (byte) (time.year - 2000);
-        command[5] = (byte) time.month;
-        command[6] = (byte) time.day;
-        command[7] = (byte) time.hour;
+        command[4] = (byte) (time.getYear() - 2000);
+        command[5] = (byte) time.getMonth();
+        command[6] = (byte) time.getDay();
+        command[7] = (byte) time.getHour();
         return command;
     }
 
     public static byte[] getWriteClockTimeAndEnabledPostCommand (ClockTimeFormat time, boolean enabled) {
         byte[] command = KI8360Cmd.writeClockTimeAndFlagPostCmd;
-        command[4] = (byte) time.minute;
-        command[5] = (byte) time.second;
+        command[4] = (byte) time.getMinute();
+        command[5] = (byte) time.getSecond();
         command[6] = (byte) (enabled ? 0x01 : 0x00);
         return command;
     }
