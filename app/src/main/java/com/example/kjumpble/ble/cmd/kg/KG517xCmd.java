@@ -1,34 +1,79 @@
 package com.example.kjumpble.ble.cmd.kg;
 
+import com.example.kjumpble.ble.format.DayFormat;
+import com.example.kjumpble.ble.format.HourFormat;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.ReminderFormat;
-import com.example.kjumpble.ble.format.kg.KGGlucoseUnit;
-import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
+import com.example.kjumpble.ble.format.kg.KGGlucoseACPC;
 
 public class KG517xCmd {
-    public static final byte[] writeHandCmd = new byte[] {0x03, 0x01, 0x00, 0x6b
+    /**
+     * User:
+     * Bit0:(飯前飯後設定)
+     * "1" PC ,"0" AC
+     * Bit1:(時間小時制設定)
+     * "1" 24-hour clock ,"0" 12-hour clock
+     * Bit2: (LCD左/右手顯示設定)
+     * "1" left hand display, "0"  right hand
+     * Bit3:(月/日顯示方式設定)
+     * "1" dd mm,"0" mm dd
+     */
+    private static final byte[] writeACPCCmd = new byte[] {0x03, 0x01, 0x00, 0x6b
             , 0x00};
-    public static final byte[] writeUnitCmd = new byte[] {0x03, 0x01, 0x00, 0x6b
+    private static final byte[] writeHourFormatCmd = new byte[] {0x03, 0x01, 0x00, 0x6b
+            , 0x00};
+    private static final byte[] writeHandCmd = new byte[] {0x03, 0x01, 0x00, 0x6b
+            , 0x00};
+    private static final byte[] writeDayFormatCmd = new byte[] {0x03, 0x01, 0x00, 0x6b
             , 0x00};
 
+    private static final int ACPCCmdPosition = 0;
+    private static final int HourFormatCmdPosition = 1;
+    private static final int HandCmdPosition = 2;
+    private static final int DayFormatCmdPosition = 3;
+
+    public static final byte ACPCPositionByte = (byte) Math.pow(2, ACPCCmdPosition);
+    public static final byte HourFormatPositionByte = (byte) Math.pow(2, HourFormatCmdPosition);
+    public static final byte HandCmdPositionByte = (byte) Math.pow(2, HandCmdPosition);
+    public static final byte DayFormatPositionByte = (byte) Math.pow(2, DayFormatCmdPosition);
+
+    public static byte[] getWriteACPCCommand(byte data, KGGlucoseACPC meat) {
+        return getFormatBytes(writeACPCCmd, ACPCPositionByte, meat);
+    }
+
+    public static byte[] getWriteHourFormatCommand(byte data, HourFormat hourFormat) {
+        return getFormatBytes(writeHourFormatCmd, HourFormatPositionByte, hourFormat);
+    }
+
     public static byte[] getWriteHandCommand(byte data, LeftRightHand hand) {
-        byte[] command = writeHandCmd;
-        if ((data & 0x04) == 0x04) {
-            data = (byte) (data - 0x04);
-        }
-        data = (byte) (data | (hand == LeftRightHand.Left ? 0x04 : 0x00));
-        command [4] = (byte) data;
+        return getFormatBytes(writeHandCmd, HandCmdPositionByte, hand);
+    }
+
+    public static byte[] getWriteDayFormatCommand(byte data, DayFormat dayFormat) {
+        return getFormatBytes(writeDayFormatCmd, DayFormatPositionByte, dayFormat);
+    }
+
+    private static byte[] getFormatBytes (byte[] command, int locationBit, Object type) {
+        byte data = command[4];
+        byte positionByte = (byte) Math.pow(2, locationBit);
+        data = deleteExistBit(data, positionByte);
+        if (type instanceof KGGlucoseACPC)
+            data = (byte) (data | (type == KGGlucoseACPC.PC ? positionByte : 0x00));
+        else if (type instanceof HourFormat)
+            data = (byte) (data | (type == HourFormat.is24 ? positionByte : 0x00));
+        else if (type instanceof LeftRightHand)
+            data = (byte) (data | (type == LeftRightHand.Left ? positionByte : 0x00));
+        else if (type instanceof DayFormat)
+            data = (byte) (data | (type == DayFormat.ddmm ? positionByte : 0x00));
+        command[4] = data;
         return command;
     }
 
-    public static byte[] getWriteUnitCommand(byte data, KGGlucoseUnit unit) {
-        byte[] command = writeUnitCmd;
-        if ((data & 0x01) == 0x01) {
-            data = (byte) (data - 0x01);
+    private static byte deleteExistBit (byte data, byte positionByte) {
+        if ((data & positionByte) == positionByte) {
+            data = (byte) (data - positionByte);
         }
-        data = (byte) (data | (unit == KGGlucoseUnit.MmolL ? 0x01 : 0x00));
-        command [4] = (byte) data;
-        return command;
+        return data;
     }
 
     // *************************

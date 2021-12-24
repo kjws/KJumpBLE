@@ -14,9 +14,11 @@ import com.example.kjumpble.ble.cmd.kd.KD2161Cmd;
 import com.example.kjumpble.ble.cmd.kg.KG517xCmd;
 import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
 import com.example.kjumpble.ble.data.kg.KGData;
+import com.example.kjumpble.ble.format.DayFormat;
+import com.example.kjumpble.ble.format.HourFormat;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.ReminderFormat;
-import com.example.kjumpble.ble.format.kg.KGGlucoseUnit;
+import com.example.kjumpble.ble.format.kg.KGGlucoseACPC;
 import com.example.kjumpble.ble.format.kg.KG517xSettings;
 import com.example.kjumpble.ble.timeFormat.DeviceTimeFormat;
 import com.example.kjumpble.ble.uuid.KjumpUUIDList;
@@ -165,18 +167,45 @@ public class KjumpKG517x {
         }
     }
 
-    public void writeUnit(KGGlucoseUnit unit) {
+    /**
+     * User:
+     * Bit0:(飯前飯後設定)
+     * "1" PC ,"0" AC
+     * Bit1:(時間小時制設定)
+     * "1" 24-hour clock ,"0" 12-hour clock
+     * Bit2: (LCD左/右手顯示設定)
+     * "1" left hand display, "0"  right hand
+     * Bit3:(月/日顯示方式設定)
+     * "1" dd mm,"0" mm dd
+     */
+
+    public void writeACPC (KGGlucoseACPC ACPC) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
-        bleClientCmd = BLE_CLIENT_CMD.WriteUnitCmd;
+        bleClientCmd = BLE_CLIENT_CMD.WriteGlucoseACPCCmd;
         if (settings == null) {
             readSettingStep1();
         }
         else {
-            settings.setUnit(unit);
-            cmd = BLE_CMD.WRITE_UNIT;
-            writeCharacteristic(KG517xCmd.getWriteUnitCommand(settingsBytes[23], unit));
+            settings.setACPC(ACPC);
+            cmd = BLE_CMD.WRITE_GLUCOSE_ACPC;
+            writeCharacteristic(KG517xCmd.getWriteACPCCommand(settingsBytes[23], ACPC));
+        }
+    }
+
+    public void writeHourFormat (HourFormat hourFormat) {
+        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
+            return;
+        dataInit();
+        bleClientCmd = BLE_CLIENT_CMD.WriteHourFormatCmd;
+        if (settings == null) {
+            readSettingStep1();
+        }
+        else {
+            settings.setHourFormat(hourFormat);
+            cmd = BLE_CMD.WRITE_HOUR_FORMAT;
+            writeCharacteristic(KG517xCmd.getWriteHourFormatCommand(settingsBytes[23], hourFormat));
         }
     }
 
@@ -192,6 +221,21 @@ public class KjumpKG517x {
             settings.setHand(hand);
             cmd = BLE_CMD.WRITE_HAND;
             writeCharacteristic(KG517xCmd.getWriteHandCommand(settingsBytes[23], hand));
+        }
+    }
+
+    public void writeDayFormat (DayFormat dayFormat) {
+        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
+            return;
+        dataInit();
+        bleClientCmd = BLE_CLIENT_CMD.WriteDayFormatCmd;
+        if (settings == null) {
+            readSettingStep1();
+        }
+        else {
+            settings.setDayFormat(dayFormat);
+            cmd = BLE_CMD.WRITE_DAY_FORMAT;
+            writeCharacteristic(KG517xCmd.getWriteDayFormatCommand(settingsBytes[23], dayFormat));
         }
     }
 
@@ -276,8 +320,10 @@ public class KjumpKG517x {
             case WRITE_POST_CLOCK:
             case WRITE_CLOCK_FLAG:
             case WRITE_REMINDER_CLOCK:
-            case WRITE_UNIT:
+            case WRITE_GLUCOSE_ACPC:
+            case WRITE_HOUR_FORMAT:
             case WRITE_HAND:
+            case WRITE_DAY_FORMAT:
                 onGetWaitCmd(characteristic);
                 break;
         }
@@ -306,8 +352,10 @@ public class KjumpKG517x {
             case WriteClockCmd:
             case WriteClockFlagCmd:
             case WriteReminderCmd:
-            case WriteUnitCmd:
+            case WriteGlucoseACPCCmd:
+            case WriteHourFormatCmd:
             case WriteHandCmd:
+            case WriteDayFormatCmd:
                 callbackForWaitCmd(callback, bleClientCmd);
                 break;
         }
@@ -327,15 +375,22 @@ public class KjumpKG517x {
                 if (cmd == BLE_CMD.WRITE_SET)
                     callback.onWriteReminderFinished(indexOfData, true);
                 break;
-            case WriteUnitCmd:
+            case WriteGlucoseACPCCmd:
                 if (cmd == BLE_CMD.WRITE_SET)
-                    callback.onWriteUnitFinished(true);
+                    callback.onWriteACPCFinished(true);
+                break;
+            case WriteHourFormatCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteHourFormatFinished(true);
                 break;
             case WriteHandCmd:
                 if (cmd == BLE_CMD.WRITE_SET)
                     callback.onWriteHandFinished(true);
                 break;
-
+            case WriteDayFormatCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteDayFormatFinished(true);
+                break;
         }
     }
 
@@ -361,11 +416,17 @@ public class KjumpKG517x {
                 ReminderFormat reminder = settings.getReminders()[indexOfReminder];
                 writeReminderClockTimeAndEnabled(indexOfReminder, reminder);
                 break;
-            case WriteUnitCmd:
-                writeUnit(settings.getUnit());
+            case WriteGlucoseACPCCmd:
+                writeACPC(settings.getACPC());
+                break;
+            case WriteHourFormatCmd:
+                writeHourFormat(settings.getHourFormat());
                 break;
             case WriteHandCmd:
                 writeHand(settings.getHand());
+                break;
+            case WriteDayFormatCmd:
+                writeDayFormat(settings.getDayFormat());
                 break;
         }
     }
@@ -424,8 +485,10 @@ public class KjumpKG517x {
                 case WriteClockCmd:
                 case WriteClockFlagCmd:
                 case WriteReminderCmd:
-                case WriteUnitCmd:
+                case WriteGlucoseACPCCmd:
+                case WriteHourFormatCmd:
                 case WriteHandCmd:
+                case WriteDayFormatCmd:
                     sendCallback();
                     break;
             }
