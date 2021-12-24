@@ -1,6 +1,6 @@
 package com.example.kjumpble.ble.cmd.kp;
 
-import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
+import com.example.kjumpble.ble.format.KP.KPSettings;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 
@@ -15,7 +15,7 @@ public class KPCmd {
         return KPCmdCalculator.getReminderBytes(reminders);
     }
 
-    public static byte[] getWriteTimeCommand (KPDeviceSetting deviceSetting) {
+    public static byte[] getWriteTimeCommand (KPSettings deviceSetting) {
         return KPCmdCalculator.getTimeBytes(deviceSetting);
     }
 
