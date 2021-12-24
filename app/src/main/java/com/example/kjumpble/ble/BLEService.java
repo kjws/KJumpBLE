@@ -20,12 +20,16 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.example.kjumpble.ble.callback.kd.KjumpKD2070Callback;
 import com.example.kjumpble.ble.callback.ki.KjumpKI8360Callback;
 import com.example.kjumpble.ble.callback.KjumpKPCallback;
-import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
+import com.example.kjumpble.ble.data.kd.KDData;
+import com.example.kjumpble.ble.format.KP.KPSettings;
 import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPUser;
 import com.example.kjumpble.ble.format.KP.SenseMode;
+import com.example.kjumpble.ble.format.LeftRightHand;
+import com.example.kjumpble.ble.format.kd.KD2070Settings;
 import com.example.kjumpble.ble.main.kd.KjumpKD2070;
 import com.example.kjumpble.ble.main.ki.KjumpKI8360;
 import com.example.kjumpble.ble.main.KjumpKP;
@@ -34,7 +38,7 @@ import com.example.kjumpble.util.Helper;
 import com.example.kjumpble.ble.cmd.BLE_CLIENT_CMD;
 import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.callback.OnProgressListener;
-import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
+import com.example.kjumpble.ble.data.ki.KIData;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
 import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
@@ -151,11 +155,27 @@ public class BLEService extends Service {
     private void connectDevice (final BluetoothDevice device) {
         if (device.getName() != null) {
             Log.d("test8360", "device: " + device.getName());
-            if (device.getName().equals("KI-8360")) {
+            String deviceName = device.getName();
+            if (Pattern.matches(DeviceRegex.KPSeries, deviceName)) {
                 connect(device.getAddress());
             }
-            else if (device.getName().contains("KP")) {
+            else if (Pattern.matches(DeviceRegex.KI8180, deviceName)) {
+
+            }
+            else if (Pattern.matches(DeviceRegex.KI8186, deviceName)) {
+
+            }
+            else if (Pattern.matches(DeviceRegex.KI8360, deviceName)) {
                 connect(device.getAddress());
+            }
+            else if (Pattern.matches(DeviceRegex.KG517x, deviceName)) {
+
+            }
+            else if (Pattern.matches(DeviceRegex.KD2070, deviceName)) {
+                connect(device.getAddress());
+            }
+            else if (Pattern.matches(DeviceRegex.KD2161, deviceName)) {
+
             }
         }
     }
@@ -204,7 +224,9 @@ public class BLEService extends Service {
 
                 }
                 else if (Pattern.matches(DeviceRegex.KD2070, deviceName)) {
-
+                    Log.d("testkd2070", "connect");
+                    bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+                    kjumpKD2070 = new KjumpKD2070(gatt, kjumpKD2070Callback, bluetoothManager);
                 }
                 else if (Pattern.matches(DeviceRegex.KD2161, deviceName)) {
 
@@ -246,6 +268,8 @@ public class BLEService extends Service {
                 kjumpKI8360.onCharacteristicChanged(characteristic);
             if (kjumpKP != null)
                 kjumpKP.onCharacteristicChanged(characteristic);
+            if (kjumpKD2070 != null)
+                kjumpKD2070.onCharacteristicChanged(characteristic);
         }
 
         @Override
@@ -289,21 +313,33 @@ public class BLEService extends Service {
      * @param enabled : Enable or disable notification.
      */
     private void setCharacteristicNotification (BluetoothGattCharacteristic characteristic, boolean enabled) {
-        if (kjumpKI8360 == null && kjumpKP == null) {
+        if (kjumpKI8360 == null && kjumpKP == null && kjumpKD2070 == null) {
             Log.w("test8360", "BluetoothGatt not initialized");
             return;
         }
-//        if (kjumpKI8360.gatt.setCharacteristicNotification(characteristic, enabled)) {
-//            Log.w("test8360", "Notification success");
-//            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(KjumpUUIDList.KJUMP_CHARACTERISTIC_DESCRIBE_UUID);
-//            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-//            kjumpKI8360.gatt.writeDescriptor(descriptor);
-//        }
-        else if (kjumpKP.gatt.setCharacteristicNotification(characteristic, enabled)) {
-            Log.w("test8360", "Notification success");
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(KjumpUUIDList.KJUMP_CHARACTERISTIC_DESCRIBE_UUID);
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            kjumpKP.gatt.writeDescriptor(descriptor);
+        if (kjumpKI8360 != null) {
+            if (kjumpKI8360.gatt.setCharacteristicNotification(characteristic, enabled)) {
+                Log.w("test8360", "Notification success");
+                BluetoothGattDescriptor descriptor = characteristic.getDescriptor(KjumpUUIDList.KJUMP_CHARACTERISTIC_DESCRIBE_UUID);
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                kjumpKI8360.gatt.writeDescriptor(descriptor);
+            }
+        }
+        if (kjumpKP != null) {
+            if (kjumpKP.gatt.setCharacteristicNotification(characteristic, enabled)) {
+                Log.w("test8360", "Notification success");
+                BluetoothGattDescriptor descriptor = characteristic.getDescriptor(KjumpUUIDList.KJUMP_CHARACTERISTIC_DESCRIBE_UUID);
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                kjumpKP.gatt.writeDescriptor(descriptor);
+            }
+        }
+        if (kjumpKD2070 != null) {
+            if (kjumpKD2070.gatt.setCharacteristicNotification(characteristic, enabled)) {
+                Log.w("test8360", "Notification success");
+                BluetoothGattDescriptor descriptor = characteristic.getDescriptor(KjumpUUIDList.KJUMP_CHARACTERISTIC_DESCRIBE_UUID);
+                descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                kjumpKD2070.gatt.writeDescriptor(descriptor);
+            }
         }
     }
 
@@ -406,7 +442,7 @@ public class BLEService extends Service {
         kjumpKI8360.setDevice();
     }
 
-    public void setDevice (KPDeviceSetting deviceSetting) {
+    public void setDevice (KPSettings deviceSetting) {
         if (kjumpKP == null)
             return;
         if (kjumpKP.gatt == null) {
@@ -423,7 +459,7 @@ public class BLEService extends Service {
             Log.w("testKP", "BluetoothGatt not initialized");
             return;
         }
-        kjumpKP.readMemory(index);
+        kjumpKP.readDataAtIndex(index);
     }
 
     public void readKPNumberOfMemory () {
@@ -433,7 +469,7 @@ public class BLEService extends Service {
             Log.w("testKP", "BluetoothGatt not initialized");
             return;
         }
-        kjumpKP.readNumberOfMemory();
+        kjumpKP.readNumberOfData();
     }
 
     public void kpStartSense () {
@@ -443,7 +479,7 @@ public class BLEService extends Service {
             Log.w("testKP", "BluetoothGatt not initialized");
             return;
         }
-        kjumpKP.kpStartSense();
+        kjumpKP.startSense();
     }
 
     public void kpStopSense () {
@@ -453,7 +489,7 @@ public class BLEService extends Service {
             Log.w("testKP", "BluetoothGatt not initialized");
             return;
         }
-        kjumpKP.kpStopSense();
+        kjumpKP.stopSense();
     }
 
     public void kpClearMemory () {
@@ -463,7 +499,7 @@ public class BLEService extends Service {
             Log.w("testKP", "BluetoothGatt not initialized");
             return;
         }
-        kjumpKP.clearMemory();
+        kjumpKP.clearAllData();
     }
 
     public void kpChangeMode (SenseMode mode) {
@@ -473,7 +509,38 @@ public class BLEService extends Service {
             Log.w("testKP", "BluetoothGatt not initialized");
             return;
         }
-        kjumpKP.kpChangeMode(mode);
+        kjumpKP.changeMode(mode);
+    }
+
+    /**
+     * KD-2070
+     */
+    public void kd2070ReadNumberOfMemory () {
+        kjumpKD2070.readNumberOfData();
+    }
+
+    public void kd2070ReadDataAtIndex (int index) {
+        kjumpKD2070.readDataAtIndex(index);
+    }
+
+    public void kd2070WriteHand (LeftRightHand hand) {
+        kjumpKD2070.writeHand(hand);
+    }
+
+    public void kd2070WriteUnit (TemperatureUnit unit) {
+        kjumpKD2070.writeUnit(unit);
+    }
+
+    public void kd2070ClearData () {
+        kjumpKD2070.clearAllData();
+    }
+
+    public void kd2070ReadSettings () {
+        kjumpKD2070.readSettings();
+    }
+
+    public void kd2070WriteClock (ClockTimeFormat clock_time) {
+        kjumpKD2070.writeClockTime(clock_time);
     }
     /**
      * Callback for ki-8360.
@@ -498,17 +565,18 @@ public class BLEService extends Service {
 
         // When you call writeCommand(BLE_CLIENT_CMD.ReadLatestMemoryCmd) you will get it here.
         @Override
-        public void onGetLastMemory (DataFormatOfKI data) {
+        public void onGetLastMemory (KIData data) {
             super.onGetLastMemory(data);
 
             Log.d("test8360", "GetLastMemory");
 
             if (data != null) {
-                int year = data.Year;
-                int month = data.Month;
-                int day = data.Day;
-                int hour = data.Hour;
-                int minute = data.Minute;
+                ClockTimeFormat time = data.getTime();
+                int year = time.getYear();
+                int month = time.getMonth();
+                int day = time.getDay();
+                int hour = time.getHour();
+                int minute = time.getMinute();
                 int sensePosition = data.SensePosition;
                 float Temperature = data.Temperature;
 
@@ -522,7 +590,7 @@ public class BLEService extends Service {
 
         // When you call writeCommand(BLE_CLIENT_CMD.ReadAllMemoryCmd) you will get it here.
         @Override
-        public void onGetAllMemory (ArrayList<DataFormatOfKI> data) {
+        public void onGetAllMemory (ArrayList<KIData> data) {
             super.onGetAllMemory(data);
 
             if (data.size() > 0) {
@@ -532,11 +600,12 @@ public class BLEService extends Service {
             }
 
             for (int i = 0; i < data.size(); i++) {
-                int year = data.get(i).Year;
-                int month = data.get(i).Month;
-                int day = data.get(i).Day;
-                int hour = data.get(i).Hour;
-                int minute = data.get(i).Minute;
+                ClockTimeFormat time = data.get(i).getTime();
+                int year = time.getYear();
+                int month = time.getMonth();
+                int day = time.getDay();
+                int hour = time.getHour();
+                int minute = time.getMinute();
                 int sensePosition = data.get(i).SensePosition;
                 float Temperature = data.get(i).Temperature;
 
@@ -587,18 +656,8 @@ public class BLEService extends Service {
 
     private final KjumpKPCallback kjumpKPCallback = new KjumpKPCallback() {
         @Override
-        public void onWriteTimeFinished (boolean success) {
-            super.onWriteTimeFinished(success);
-        }
-
-        @Override
-        public void onWriteReminderFinished (boolean success) {
-            super.onWriteReminderFinished(success);
-        }
-
-        @Override
-        public void onGetMemory (KPMemory kpMemory) {
-            super.onGetMemory(kpMemory);
+        public void onGetDataAtIndex (KPMemory kpMemory) {
+            super.onGetDataAtIndex(kpMemory);
         }
 
         @Override
@@ -607,8 +666,8 @@ public class BLEService extends Service {
         }
 
         @Override
-        public void onSensing (boolean enabled, int systolic) {
-            super.onSensing(enabled, systolic);
+        public void onMeasuring (boolean enabled, int systolic) {
+            super.onMeasuring(enabled, systolic);
             Log.d("test8360", "onSensing.enabled = " + enabled);
             Log.d("test8360", "onSensing.Systolic = " + systolic);
         }
@@ -628,10 +687,77 @@ public class BLEService extends Service {
         }
 
         @Override
-        public void onFinishedSense (KPMemory kpMemory) {
-            super.onFinishedSense(kpMemory);
+        public void onMeasurementFinished (KPMemory kpMemory) {
+            super.onMeasurementFinished(kpMemory);
 
             Log.d("test8360", "onFinishedSense = " + kpMemory);
+        }
+    };
+
+    private final KjumpKD2070Callback kjumpKD2070Callback = new KjumpKD2070Callback() {
+        @Override
+        public void onGetNumberOfData (int number) {
+            super.onGetNumberOfData(number);
+
+            Log.d("testKD2070", "onGetNumberOfData = " + number);
+        }
+
+        @Override
+        public void onGetDataAtIndex (int index, KDData data) {
+            super.onGetDataAtIndex(index, data);
+
+            ClockTimeFormat time = data.getTime();
+            Log.d("testKD2070", "onGetIndexMemory index = " + index);
+            Log.d("testKD2070", "onGetIndexMemory Year = " + time.getYear());
+            Log.d("testKD2070", "onGetIndexMemory Month = " + time.getMonth());
+            Log.d("testKD2070", "onGetIndexMemory Day = " + time.getDay());
+            Log.d("testKD2070", "onGetIndexMemory Hour = " + time.getHour());
+            Log.d("testKD2070", "onGetIndexMemory Minute = " + time.getMinute());
+            Log.d("testKD2070", "onGetIndexMemory Second = " + time.getSecond());
+            Log.d("testKD2070", "onGetIndexMemory Temperature = " + data.getTemperature());
+        }
+
+        @Override
+        public void onClearAllDataFinished (boolean success) {
+            super.onClearAllDataFinished(success);
+
+            Log.d("testKD2070", "onClearAllDataFinished = " + success);
+        }
+
+        @Override
+        public void onWriteClockTimeFinished (boolean success) {
+            super.onWriteClockTimeFinished(success);
+
+            Log.d("testKD2070", "onWriteClockFinished = " + success);
+        }
+
+        @Override
+        public void onWriteUnitFinished (boolean success) {
+            super.onWriteUnitFinished(success);
+
+            Log.d("testKD2070", "onWriteUnitFinished = " + success);
+        }
+
+        @Override
+        public void onWriteHandFinished (boolean success) {
+            super.onWriteHandFinished(success);
+
+            Log.d("testKD2070", "onWriteHandFinished = " + success);
+        }
+
+        @Override
+        public void onGetSettings (KD2070Settings settings) {
+            super.onGetSettings(settings);
+
+            ClockTimeFormat time = settings.getClockTime();
+            Log.d("testKD2070", "onReadSettings year = " + time.getYear());
+            Log.d("testKD2070", "onReadSettings month = " + time.getMonth());
+            Log.d("testKD2070", "onReadSettings day = " + time.getDay());
+            Log.d("testKD2070", "onReadSettings hour = " + time.getHour());
+            Log.d("testKD2070", "onReadSettings minute = " + time.getMinute());
+            Log.d("testKD2070", "onReadSettings second = " + time.getSecond());
+            Log.d("testKD2070", "onReadSettings unit = " + settings.getUnit());
+            Log.d("testKD2070", "onReadSettings hand = " + settings.getHand());
         }
     };
 }

@@ -12,7 +12,7 @@ import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.cmd.SharedCmd;
 import com.example.kjumpble.ble.cmd.kd.KD2070Cmd;
 import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
-import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
+import com.example.kjumpble.ble.data.kd.KDData;
 import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.format.kd.KD2070Settings;
@@ -33,7 +33,7 @@ public class KjumpKD2070 {
     private BLE_CLIENT_CMD bleClientCmd;
 
     // DATA
-    private DataFormatOfKD dataFormatOfKD;
+    private KDData KDData;
     private int indexOfData = 0;
     private int numberOfData = 0;
 
@@ -96,7 +96,7 @@ public class KjumpKD2070 {
      * Read last memory.
      * Return value will show in KjumpKI8360Callback.onGetLastMemory
      */
-    public void readIndexMemory (int indexOfData) {
+    public void readDataAtIndex (int indexOfData) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -171,7 +171,7 @@ public class KjumpKD2070 {
         }
         else {
             settings.setUnit(unit);
-            writeCharacteristic(KD2070Cmd.writeUnitCmd);
+            writeCharacteristic(KD2070Cmd.getWriteUnitCommand(settingsBytes[23], settings.getUnit()));
         }
     }
 
@@ -191,7 +191,7 @@ public class KjumpKD2070 {
         }
         else {
             settings.setHand(hand);
-            writeCharacteristic(KD2070Cmd.writeHandCmd);
+            writeCharacteristic(KD2070Cmd.getWriteHandCommand(settingsBytes[23], settings.getHand()));
         }
     }
 
@@ -240,18 +240,14 @@ public class KjumpKD2070 {
         Log.d(TAG, "sendBroadcast bleClientCmd = " + bleClientCmd + ",cmd = " + cmd);
         switch (bleClientCmd) {
             case ReadSettingsCmd:
-                callback.onReadSettings(settings);
-                break;
-            case WriteSetDeviceCmd:
-                if (cmd == BLE_CMD.WRITE_SET)
-                    callback.onSetDeviceFinished(true);
+                callback.onGetSettings(settings);
                 break;
             case ReadNumberOfDataCmd:
                 if (cmd == BLE_CMD.CONFIRM_NUMBER_OF_DATA)
                     callback.onGetNumberOfData(numberOfData);
                 break;
             case ReadIndexMemoryCmd:
-                callback.onGetIndexMemory(indexOfData, dataFormatOfKD);
+                callback.onGetDataAtIndex(indexOfData, KDData);
                 break;
             case ClearAllDataCmd:
                 callback.onClearAllDataFinished(true);
@@ -268,7 +264,7 @@ public class KjumpKD2070 {
         switch (bleClientCmd) {
             case WriteClockCmd:
                 if (cmd == BLE_CMD.WRITE_SET)
-                    callback.onWriteClockFinished(true);
+                    callback.onWriteClockTimeFinished(true);
                 break;
             case WriteUnitCmd:
                 if (cmd == BLE_CMD.WRITE_SET)
@@ -322,7 +318,7 @@ public class KjumpKD2070 {
      * @param characteristic characteristic
      */
     private void onGetReadData (BluetoothGattCharacteristic characteristic) {
-        dataFormatOfKD = new DataFormatOfKD(characteristic.getValue());
+        KDData = new KDData(characteristic.getValue());
         switch (bleClientCmd) {
             case ReadIndexMemoryCmd:
                 sendCallback();
@@ -346,7 +342,6 @@ public class KjumpKD2070 {
     private void onGetRefreshCmd (BluetoothGattCharacteristic characteristic) {
         if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             switch (bleClientCmd) {
-                case WriteSetDeviceCmd:
                 case WriteUnitCmd:
                 case WriteHandCmd:
                 case WriteClockCmd:

@@ -1,11 +1,10 @@
 package com.example.kjumpble.ble.callback.kd;
 
-import com.example.kjumpble.ble.data.kd.DataFormatOfKD;
+import com.example.kjumpble.ble.data.kd.KDData;
 import com.example.kjumpble.ble.format.kd.KD2161Settings;
-import com.example.kjumpble.ble.format.kg.KGSettings;
 
 public abstract class KjumpKD2161Callback {
-    public void onSetDeviceFinished (boolean success) {
+    public void onGetSettings (KD2161Settings settings) {
 
     }
 
@@ -13,7 +12,7 @@ public abstract class KjumpKD2161Callback {
 
     }
 
-    public void onGetIndexMemory (int index, DataFormatOfKD data) {
+    public void onGetDataAtIndex (int index, KDData data) {
 
     }
 
@@ -21,15 +20,7 @@ public abstract class KjumpKD2161Callback {
 
     }
 
-    public void onWriteUnitFinished (boolean success) {
-
-    }
-
-    public void onWriteClockFinished (boolean success) {
-
-    }
-
-    public void onWriteReminderClockFinished (boolean success) {
+    public void onWriteClockTimeFinished (boolean success) {
 
     }
 
@@ -37,7 +28,11 @@ public abstract class KjumpKD2161Callback {
 
     }
 
-    public void onReadSettings (KD2161Settings settings) {
+    public void onWriteReminderFinished (boolean success) {
+
+    }
+
+    public void onWriteUnitFinished (boolean success) {
 
     }
 }

@@ -1,6 +1,6 @@
 package com.example.kjumpble.ble.callback.ki;
 
-import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
+import com.example.kjumpble.ble.data.ki.KIData;
 
 import java.util.ArrayList;
 
@@ -13,11 +13,11 @@ public abstract class KjumpKI8360Callback {
 
     }
 
-    public void onGetLastMemory (DataFormatOfKI data) {
+    public void onGetLastMemory (KIData data) {
 
     }
 
-    public void onGetAllMemory (ArrayList<DataFormatOfKI> data) {
+    public void onGetAllMemory (ArrayList<KIData> data) {
 
     }
 

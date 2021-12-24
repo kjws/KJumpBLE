@@ -4,8 +4,14 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/jake/AndroidStudioProjects/KJumpBLE/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/Users/jake/AndroidStudioProjects/KJumpBLE/app/src/main/res/layout/kd2070layout.xml" value="0.25" />
+        <entry key="..\:/Users/jake/AndroidStudioProjects/KJumpBLE/app/src/main/res/layout/kplayout.xml" value="0.25" />
       </map>
     </option>
+  </component>
+  <component name="JavadocGenerationManager">
+    <option name="OUTPUT_DIRECTORY" value="$USER_HOME$/Desktop" />
+    <option name="OPTION_SCOPE" value="public" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />

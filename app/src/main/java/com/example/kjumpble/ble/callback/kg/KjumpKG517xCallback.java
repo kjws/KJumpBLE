@@ -1,19 +1,13 @@
 package com.example.kjumpble.ble.callback.kg;
 
-import com.example.kjumpble.ble.data.kg.DataFormatOfKG;
-import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
-import com.example.kjumpble.ble.format.kg.KGSettings;
+import com.example.kjumpble.ble.data.kg.KGData;
+import com.example.kjumpble.ble.format.kg.KG517xSettings;
 
-public abstract class KjumpKG517xCallback {
-    public void onSetDeviceFinished (boolean success) {
+public abstract class KjumpKG517xCallback {public void onGetNumberOfData (int number) {
 
     }
 
-    public void onGetNumberOfData (int number) {
-
-    }
-
-    public void onGetIndexMemory (int index, DataFormatOfKG data) {
+    public void onGetDataAtIndex (int index, KGData data) {
 
     }
 
@@ -21,7 +15,11 @@ public abstract class KjumpKG517xCallback {
 
     }
 
-    public void onWriteClockFinished (boolean success) {
+    public void onWriteClockTimeFinished (boolean success) {
+
+    }
+
+    public void onWriteClockFlagFinished (boolean success) {
 
     }
 
@@ -33,11 +31,11 @@ public abstract class KjumpKG517xCallback {
 
     }
 
-    public void onWriteHandDisplayFinished (boolean success) {
+    public void onWriteHandFinished (boolean success) {
 
     }
 
-    public void onReadSettings (KGSettings settings) {
+    public void onGetSettings (KG517xSettings settings) {
 
     }
 }

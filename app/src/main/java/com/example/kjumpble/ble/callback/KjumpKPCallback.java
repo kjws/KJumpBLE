@@ -4,19 +4,19 @@ import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPUser;
 
 public abstract class KjumpKPCallback {
-    public void onWriteTimeFinished (boolean success) {
-
-    }
-
-    public void onWriteReminderFinished (boolean success) {
-
-    }
-
     public void onSetDeviceFinished (boolean success) {
 
     }
 
-    public void onGetMemory(KPMemory kpMemory) {
+    public void onClearAllDataFinished (boolean success) {
+
+    }
+
+    public void onChangeModeFinished (boolean success) {
+
+    }
+
+    public void onGetDataAtIndex (KPMemory kpMemory) {
 
     }
 
@@ -24,7 +24,7 @@ public abstract class KjumpKPCallback {
 
     }
 
-    public void onSensing(boolean enabled, int systolic) {
+    public void onMeasuring (boolean enabled, int systolic) {
 
     }
 
@@ -36,7 +36,7 @@ public abstract class KjumpKPCallback {
 
     }
 
-    public void onFinishedSense(KPMemory kpMemory) {
+    public void onMeasurementFinished (KPMemory kpMemory) {
 
     }
 }

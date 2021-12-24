@@ -12,7 +12,7 @@ import com.example.kjumpble.ble.cmd.BLE_CMD;
 import com.example.kjumpble.ble.cmd.SharedCmd;
 import com.example.kjumpble.ble.cmd.ki.KI8186Cmd;
 import com.example.kjumpble.ble.cmd.ki.KI8360Cmd;
-import com.example.kjumpble.ble.data.ki.DataFormatOfKI;
+import com.example.kjumpble.ble.data.ki.KIData;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.format.ki.KI8186Settings;
@@ -35,7 +35,7 @@ public class KjumpKI8186 {
     private BLE_CLIENT_CMD bleClientCmd;
 
     // DATA
-    private DataFormatOfKI dataFormatOfKI;
+    private KIData KIData;
     private int numberOfData = 0;
     private int indexOfData = 0;
     private int indexOfReminder = 0;
@@ -99,7 +99,7 @@ public class KjumpKI8186 {
      * Read last memory.
      * Return value will show in KjumpKI8360Callback.onGetLastMemory
      */
-    public void readIndexMemory (int indexOfData) {
+    public void readDataAtIndex (int indexOfData) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -159,19 +159,37 @@ public class KjumpKI8186 {
     }
 
     /**
-     * Set device index reminder clock time and enable to alarm.
-     * Success or not will show in KjumpKI8360Callback.onWriteClockFinished
-     * @param index : Index of reminder which you want to set.
-     * @param reminder_clock_time : Reminder clock time.
-     * @param enabled : True if you want to enable reminder clock.
+     * Set clock show or not show.
+     * @param clockFlag : True is enabled, false is disabled.
      */
-    public void writeReminderClockTimeAndEnabled (int index, ReminderTimeFormat reminder_clock_time, boolean enabled) {
+    public void writeClockShowFlag (boolean clockFlag) {
+        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
+            return;
+        dataInit();
+        bleClientCmd = BLE_CLIENT_CMD.WriteClockFlagCmd;
+        cmd = BLE_CMD.WRITE_CLOCK_FLAG;
+
+        if (settings == null) {
+            readSettingStep1();
+        }
+        else {
+            settings.setClockEnabled(clockFlag);
+            writeCharacteristic(KI8186Cmd.getWriteClockShowFlagCommand(settingsBytes[23], clockFlag));
+        }
+    }
+
+    /**
+     * Set device reminder clock time and enable to alarm.
+     * Success or not will show in KjumpKI8360Callback.onWriteClockFinished
+     * @param index : Which one you want to write.
+     * @param reminder : Reminder status what you want to set. It contains time and enabled.
+     */
+    public void writeReminderClockTimeAndEnabled (int index, ReminderFormat reminder) {
         if (!KI8186Util.checkReminderIndexOutOfRange(index, TAG))
             return;
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
-        indexOfReminder = index;
         bleClientCmd = BLE_CLIENT_CMD.WriteReminderCmd;
         cmd = BLE_CMD.WRITE_REMINDER_CLOCK;
 
@@ -179,8 +197,9 @@ public class KjumpKI8186 {
             readSettingStep1();
         }
         else {
-            settings.setReminders(index, reminder_clock_time, enabled);
-            writeCharacteristic(KI8186Cmd.getWriteReminderAndFlagCommand(index, reminder_clock_time, enabled));
+            indexOfReminder = index;
+            settings.setReminders(index, reminder);
+            writeCharacteristic(KI8186Cmd.getWriteReminderAndFlagCommand(index, reminder));
         }
     }
 
@@ -208,25 +227,6 @@ public class KjumpKI8186 {
         }
     }
 
-    /**
-     * Set clock show or not show.
-     * @param clockFlag : True is enabled, false is disabled.
-     */
-    public void writeClockShowFlag (boolean clockFlag) {
-        if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
-            return;
-        dataInit();
-        bleClientCmd = BLE_CLIENT_CMD.WriteClockFlagCmd;
-        cmd = BLE_CMD.WRITE_CLOCK_FLAG;
-
-        if (settings == null) {
-            readSettingStep1();
-        }
-        else {
-            settings.setClockEnabled(clockFlag);
-            writeCharacteristic(KI8186Cmd.getWriteClockShowFlagCommand(settingsBytes[23], clockFlag));
-        }
-    }
     /**
      * Set device beep.
      * @param beepFlag : True is enabled, false is disabled.
@@ -304,10 +304,10 @@ public class KjumpKI8186 {
                 onGetPreClockCmd(characteristic);
                 break;
             case WRITE_POST_CLOCK:
+            case WRITE_CLOCK_FLAG:
             case WRITE_REMINDER_CLOCK:
             case WRITE_UNIT:
             case WRITE_OFFSET:
-            case WRITE_CLOCK_FLAG:
             case WRITE_BEEP:
                 onGetWaitCmd(characteristic);
                 break;
@@ -322,25 +322,22 @@ public class KjumpKI8186 {
         Log.d(TAG, "sendBroadcast bleClientCmd = " + bleClientCmd + ",cmd = " + cmd);
         switch (bleClientCmd) {
             case ReadSettingsCmd:
-                callback.onReadSettings(settings);
-                break;
-            case WriteSetDeviceCmd:
-                callback.onSetDeviceFinished(cmd == BLE_CMD.WRITE_SET);
+                callback.onGetSettings(settings);
                 break;
             case ReadNumberOfDataCmd:
                 if (cmd == BLE_CMD.CONFIRM_NUMBER_OF_DATA)
                     callback.onGetNumberOfData(numberOfData);
                 break;
             case ReadIndexMemoryCmd:
-                callback.onGetIndexMemory(indexOfData, dataFormatOfKI);
+                callback.onGetDataAtIndex(indexOfData, KIData);
                 break;
             case ClearAllDataCmd:
                 callback.onClearAllDataFinished(true);
                 break;
             case WriteClockCmd:
+            case WriteClockFlagCmd:
             case WriteReminderCmd:
             case WriteUnitCmd:
-            case WriteClockFlagCmd:
             case WriteBeepCmd:
             case WriteOffsetCmd:
                 callbackForWaitCmd(callback, bleClientCmd);
@@ -354,6 +351,10 @@ public class KjumpKI8186 {
                 if (cmd == BLE_CMD.WRITE_SET)
                     callback.onWriteClockFinished(true);
                 break;
+            case WriteClockFlagCmd:
+                if (cmd == BLE_CMD.WRITE_SET)
+                    callback.onWriteClockFlagFinished(true);
+                break;
             case WriteReminderCmd:
                 if (cmd == BLE_CMD.WRITE_SET)
                     callback.onWriteReminderFinished(indexOfData, true);
@@ -361,10 +362,6 @@ public class KjumpKI8186 {
             case WriteUnitCmd:
                 if (cmd == BLE_CMD.WRITE_SET)
                     callback.onWriteUnitFinished(true);
-                break;
-            case WriteClockFlagCmd:
-                if (cmd == BLE_CMD.WRITE_SET)
-                    callback.onWriteClockFlagFinished(true);
                 break;
             case WriteBeepCmd:
                 if (cmd == BLE_CMD.WRITE_SET)
@@ -392,19 +389,18 @@ public class KjumpKI8186 {
             case WriteClockCmd:
                 writeClockTime(settings.getClockTime());
                 break;
+            case WriteClockFlagCmd:
+                writeClockShowFlag(settings.isClockEnabled());
+                break;
             case WriteReminderCmd:
                 ReminderFormat reminder = settings.getReminders()[indexOfReminder];
-                writeReminderClockTimeAndEnabled(indexOfReminder, reminder.getTime(),
-                        reminder.isEnable());
+                writeReminderClockTimeAndEnabled(indexOfReminder, reminder);
                 break;
             case WriteUnitCmd:
                 writeUnit(settings.getUnit());
                 break;
             case WriteBeepCmd:
                 writeBeep(settings.isBeepEnabled());
-                break;
-            case WriteClockFlagCmd:
-                writeClockShowFlag(settings.isClockEnabled());
                 break;
             case WriteOffsetCmd:
                 writeOffset(settings.getOffset());
@@ -426,7 +422,7 @@ public class KjumpKI8186 {
      * @param characteristic characteristic
      */
     private void onGetReadData (BluetoothGattCharacteristic characteristic) {
-        dataFormatOfKI = new DataFormatOfKI(characteristic.getValue());
+        KIData = new KIData(characteristic.getValue());
         switch (bleClientCmd) {
             case ReadIndexMemoryCmd:
                 sendCallback();
@@ -465,10 +461,10 @@ public class KjumpKI8186 {
         if (Arrays.equals(characteristic.getValue(), KI8360Cmd.writeReturnCmd))
             switch (bleClientCmd) {
                 case WriteClockCmd:
+                case WriteClockFlagCmd:
                 case WriteReminderCmd:
                 case WriteUnitCmd:
                 case WriteOffsetCmd:
-                case WriteClockFlagCmd:
                 case WriteBeepCmd:
                     sendCallback();
                     break;

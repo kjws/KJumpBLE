@@ -15,6 +15,7 @@ import android.os.IBinder;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.example.kjumpble.ble.BLEService;
@@ -23,8 +24,9 @@ import com.example.kjumpble.ble.CheckBLEScan;
 import com.example.kjumpble.ble.CheckLocationStatus;
 import com.example.kjumpble.ble.callback.OnProgressListener;
 import com.example.kjumpble.ble.format.HourFormat;
-import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
+import com.example.kjumpble.ble.format.KP.KPSettings;
 import com.example.kjumpble.ble.format.KP.SenseMode;
+import com.example.kjumpble.ble.format.LeftRightHand;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
 import com.example.kjumpble.ble.timeFormat.ClockTimeFormat;
@@ -213,7 +215,7 @@ public class MainActivity extends AppCompatActivity {
      * KP Series
      */
     // Write Device Setting
-    KPDeviceSetting deviceSetting = new KPDeviceSetting(reminder, true, testTemperatureUnit, hourFormat, clockShowFlag);
+    KPSettings deviceSetting = new KPSettings(reminder, true, testTemperatureUnit, hourFormat, clockShowFlag);
 
     // Write reminder time
     private static final ArrayList<ReminderFormat> reminder = new ArrayList<> () {{
@@ -301,7 +303,7 @@ public class MainActivity extends AppCompatActivity {
 
                     }
                     else if (Pattern.matches(DeviceRegex.KD2070, deviceName)) {
-
+                        kd2070ViewInit(activity);
                     }
                     else if (Pattern.matches(DeviceRegex.KD2161, deviceName)) {
 
@@ -361,6 +363,49 @@ public class MainActivity extends AppCompatActivity {
         kpChangeModeButton.setOnClickListener(kpChangeModeOnClickListener);
     }
 
+    private void kd2070ViewInit (Activity activity) {
+        activity.setContentView(R.layout.kd2070layout);
+        Button readNumberOfMemoryButton;
+        Button readIndexMemoryButton;
+        Button setDeviceButton;
+        Button writeHandButton;
+        Button writeUnitButton;
+        Button clearDataButton;
+        Button writeClockButton;
+        Button readSettingsButton;
+
+        EditText editTextNumberEditText;
+        editTextNumberEditText = findViewById(R.id.editTextNumber);
+        EditText editTextHand;
+        editTextHand = findViewById(R.id.editTextHand);
+        EditText editTextUnit;
+        editTextUnit = findViewById(R.id.editTextUnit);
+
+        readNumberOfMemoryButton = findViewById(R.id.KD2070ReadNumberOfMemoryButton);
+        readNumberOfMemoryButton.setOnClickListener(v -> bleService.kd2070ReadNumberOfMemory());
+
+        readIndexMemoryButton = findViewById(R.id.KD2070ReadMemoryButton);
+        readIndexMemoryButton.setOnClickListener(v -> bleService.kd2070ReadDataAtIndex(Integer.parseInt(editTextNumberEditText.getText().toString())));
+
+        setDeviceButton = findViewById(R.id.KD2070SetDeviceButton);
+        setDeviceButton.setOnClickListener(v -> bleService.kd2070ReadSettings());
+
+        writeHandButton = findViewById(R.id.KD2070WriteHand);
+        writeHandButton.setOnClickListener(v -> bleService.kd2070WriteHand(editTextHand.getText().toString().equals("L") ? LeftRightHand.Left : LeftRightHand.Right));
+
+        writeUnitButton = findViewById(R.id.KD2070WriteUnit);
+        writeUnitButton.setOnClickListener(v -> bleService.kd2070WriteUnit(editTextUnit.getText().toString().equals("F") ? TemperatureUnit.F : TemperatureUnit.C));
+
+        clearDataButton = findViewById(R.id.KD2070ClearMemoryButton);
+        clearDataButton.setOnClickListener(v -> bleService.kd2070ClearData());
+
+        ClockTimeFormat clockTime = new ClockTimeFormat(2015,5,13,17,25,31);
+        writeClockButton = findViewById(R.id.KD2070WriteTime);
+        writeClockButton.setOnClickListener(v -> bleService.kd2070WriteClock(clockTime));
+
+        readSettingsButton = findViewById(R.id.KD2070ReadSettings);
+        readSettingsButton.setOnClickListener(v -> bleService.kd2070ReadSettings());
+    }
     private void kpOnClickListenerInit () {
 
     }

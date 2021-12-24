@@ -12,7 +12,7 @@ import com.example.kjumpble.ble.cmd.kp.KPDesCmd;
 import com.example.kjumpble.ble.cmd.kp.KPInnerCmd;
 import com.example.kjumpble.ble.data.KP.memory.KPMemoryFilter;
 import com.example.kjumpble.ble.data.KP.user.KPUserFilter;
-import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
+import com.example.kjumpble.ble.format.KP.KPSettings;
 import com.example.kjumpble.ble.format.KP.KPMemory;
 import com.example.kjumpble.ble.format.KP.KPUser;
 import com.example.kjumpble.ble.SenseTimer;
@@ -39,7 +39,7 @@ public class KjumpKP {
     SenseTimer senseTimer;
 
     // For write kp setting
-    KPDeviceSetting deviceSetting;
+    KPSettings deviceSetting;
 
     public KjumpKP (BluetoothGatt gatt, KjumpKPCallback kjumpKPCallback, BluetoothManager bluetoothManager) {
         this.gatt = gatt;
@@ -53,7 +53,7 @@ public class KjumpKP {
     }
 
     // 先寫下reminder，在收到回覆之後再寫入time
-    public void setDevice(KPDeviceSetting deviceSetting) {
+    public void setDevice(KPSettings deviceSetting) {
         this.deviceSetting = deviceSetting;
         setReminder(deviceSetting.getReminders());
     }
@@ -67,7 +67,7 @@ public class KjumpKP {
         writeCharacteristic(KPCmd.getWriteReminderCommand(reminders));
     }
 
-    private void setTime(KPDeviceSetting deviceSetting) {
+    private void setTime(KPSettings deviceSetting) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -76,7 +76,7 @@ public class KjumpKP {
         writeCharacteristic(KPCmd.getWriteTimeCommand(deviceSetting));
     }
 
-    public void readMemory(int index) {
+    public void readDataAtIndex (int index) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -84,7 +84,7 @@ public class KjumpKP {
         writeCharacteristic(KPCmd.getReadMemoryCommand(index));
     }
 
-    public void readNumberOfMemory () {
+    public void readNumberOfData () {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -92,7 +92,7 @@ public class KjumpKP {
         writeCharacteristic(KPCmd.getReadNumberOfMemoryCommand());
     }
 
-    public void kpStartSense () {
+    public void startSense () {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -100,7 +100,7 @@ public class KjumpKP {
         writeCharacteristic(KPCmd.getStartSenseCommand());
     }
 
-    public void kpStopSense () {
+    public void stopSense () {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -108,7 +108,7 @@ public class KjumpKP {
         writeCharacteristic(KPCmd.getStopSenseCommand());
     }
 
-    public void kpChangeMode (SenseMode mode) {
+    public void changeMode (SenseMode mode) {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -116,7 +116,7 @@ public class KjumpKP {
         writeCharacteristic(KPCmd.getChangeModeCommand(mode));
     }
 
-    public void clearMemory () {
+    public void clearAllData () {
         if (new BLEUtil().checkConnectStatus(bluetoothManager, gatt, TAG) == LeConnectStatus.DisConnected)
             return;
         dataInit();
@@ -149,7 +149,7 @@ public class KjumpKP {
             case Read_Memory_At_Index: {
                 KPMemory kpMemory = new KPMemoryFilter().getKpMemory(gatt.getDevice().getName(), data);
                 if (kpMemory != null) {
-                    kjumpKPCallback.onGetMemory(kpMemory);
+                    kjumpKPCallback.onGetDataAtIndex(kpMemory);
                 }
                 break;
             }
@@ -160,20 +160,27 @@ public class KjumpKP {
                 }
                 break;
             case Start_Sense:
+                kjumpKPCallback.onStartSense();
                 break;
             case Stop_Sense: {
                 KPMemory kpMemory = new KPMemoryFilter().getKpMemory(gatt.getDevice().getName(), data);
                 if (kpMemory != null) {
                     destinyCommand = KPDesCmd.Nothing;
-                    kjumpKPCallback.onFinishedSense(kpMemory);
+                    kjumpKPCallback.onMeasurementFinished(kpMemory);
                 }
                 break;
             }
+            case Change_Mode:
+                kjumpKPCallback.onChangeModeFinished(true);
+                break;
+            case Clear_Memory:
+                kjumpKPCallback.onClearAllDataFinished(true);
+                break;
         }
         // 讓 timer 知道每次收到的characteristicChanged，藉此判斷是不是正在量測
         if (senseTimer != null) {
             if (senseTimer.isSensing(data)) {
-                kjumpKPCallback.onSensing(true, getSensingSystolic(data));
+                kjumpKPCallback.onMeasuring(true, getSensingSystolic(data));
             }
         }
     }
