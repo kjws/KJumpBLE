@@ -41,7 +41,7 @@ public class KI8360Cmd {
     }
 
     public static byte[] getConfirmUserAndMemoryCmd() {
-        return KI8360Cmd.confirmUserAndMemoryCmd;
+        return KI8360Cmd.readNumberOfDataCmd;
     }
 
     public static byte[] getConfirmNumberOfDataCmd(int user) {
