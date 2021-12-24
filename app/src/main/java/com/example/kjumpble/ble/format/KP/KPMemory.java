@@ -32,4 +32,24 @@ public class KPMemory {
         Log.d("KP", "Hour = " + time.get(Calendar.HOUR));
         Log.d("KP", "Minute = " + time.get(Calendar.MINUTE));
     }
+
+    public com.example.kjumpble.ble.format.KP.BloodPressure getBloodPressure () {
+        return BloodPressure;
+    }
+
+    public KPTemperature getKpTemperature () {
+        return KpTemperature;
+    }
+
+    public Calendar getTime () {
+        return time;
+    }
+
+    public boolean isIPD () {
+        return IPD;
+    }
+
+    public boolean isAfib () {
+        return Afib;
+    }
 }
