@@ -112,7 +112,7 @@ public class KI8360Cmd {
 
     private static byte[] commandForReadData (int dataIndex) {
         byte[] command = KI8360Cmd.readDataCmd;
-        command[3] = (byte) (0xa8 + dataIndex * 0x08);
+        command[3] = (byte) (0xc0 + dataIndex * 0x08);
         return command;
     }
 }
