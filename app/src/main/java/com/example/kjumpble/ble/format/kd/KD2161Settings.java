@@ -9,7 +9,9 @@ import com.example.kjumpble.ble.timeFormat.ReminderTimeFormat;
 public class KD2161Settings {
     ClockTimeFormat clockTime;
     boolean clockEnabled;
+
     ReminderFormat reminder;
+
     TemperatureUnit unit = TemperatureUnit.F;
 
     public KD2161Settings(byte[] data) {
