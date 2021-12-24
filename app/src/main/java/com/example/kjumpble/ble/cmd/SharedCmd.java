@@ -48,6 +48,6 @@ public class SharedCmd {
     }
 
 
-    public static final byte[] readSettingPreCmd = new byte[]{0x012, 0x01, 0x00, 0x54};
-    public static final byte[] readSettingPostCmd = new byte[]{0x06, 0x01, 0x00, 0x66};
+    public static final byte[] readSettingPreCmd = new byte[]{0x02, 0x12, 0x00, 0x54};
+    public static final byte[] readSettingPostCmd = new byte[]{0x02, 0x06, 0x00, 0x66};
 }
