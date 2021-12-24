@@ -1,7 +1,7 @@
 package com.example.kjumpble.ble.cmd.kp;
 
 import com.example.kjumpble.ble.format.HourFormat;
-import com.example.kjumpble.ble.format.KP.KPDeviceSetting;
+import com.example.kjumpble.ble.format.KP.KPSettings;
 import com.example.kjumpble.ble.format.KP.SenseMode;
 import com.example.kjumpble.ble.format.ReminderFormat;
 import com.example.kjumpble.ble.format.TemperatureUnit;
@@ -30,7 +30,7 @@ public class KPCmdCalculator {
         return getCommand(bytes);
     }
 
-    public static byte[] getTimeBytes (KPDeviceSetting deviceSetting) {
+    public static byte[] getTimeBytes (KPSettings deviceSetting) {
         byte[] bytes = writeTimeCmd;
         Calendar calendar = Calendar.getInstance();
         bytes[1] = (byte) (calendar.get(Calendar.YEAR) - 1999);
@@ -93,7 +93,7 @@ public class KPCmdCalculator {
         return (byte) ((256 - (sum & 0xff)) & 0xff);
     }
 
-    private static byte getInformationByte (KPDeviceSetting deviceSetting) {
+    private static byte getInformationByte (KPSettings deviceSetting) {
         byte InformationByte = getReminderEnabledByte(deviceSetting.getReminders());
         InformationByte = deviceSetting.getAmbient() ? (byte) (InformationByte | 0x10) : InformationByte;
         InformationByte = deviceSetting.getUnit().ordinal() == TemperatureUnit.F.ordinal() ? (byte) (InformationByte | 0x20) : InformationByte;
