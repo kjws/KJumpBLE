@@ -30,10 +30,7 @@ public class KGData {
         this.isValid = isValid;
     }
 
-    public Calendar getTime () {
-        return time;
-    }
-
+    // Time
     public void setTime (byte[] data) {
         this.time.set(Calendar.YEAR, data[1] + 100);
         this.time.set(Calendar.MONTH, data[2] - 1);
@@ -41,24 +38,26 @@ public class KGData {
         this.time.set(Calendar.HOUR, data[4]);
         this.time.set(Calendar.MINUTE, data[5] & 0x7f);
     }
-
-    public KGGlucoseACPC getACPC() {
-        return ACPC;
+    public Calendar getTime () {
+        return time;
     }
 
-
+    //ACPC
     public void setACPC(int aCPC) {
         ACPC = aCPC == 0 ? KGGlucoseACPC.PC : KGGlucoseACPC.AC;
         if (aCPC > 1)
             setValid(false);
     }
-
-    public int getGlucose() {
-        return this.Glucose;
+    public KGGlucoseACPC getACPC() {
+        return ACPC;
     }
 
+    // Glucose
     private void setGlucose(byte[] buf) {
         this.Glucose = buf[7] * 256 + buf[8];
+    }
+    public int getGlucose() {
+        return this.Glucose;
     }
 
     private void logAll() {
