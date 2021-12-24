@@ -7,13 +7,13 @@ import com.example.kjumpble.ble.format.kg.KGGlucoseACPC;
 import java.util.Calendar;
 import java.util.Date;
 
-public class DataFormatOfKG {
+public class KGData {
     private boolean isValid = false;
     private KGGlucoseACPC ACPC;
     private int Glucose;
     private Calendar time = Calendar.getInstance();
 
-    public DataFormatOfKG (byte[] data) {
+    public KGData (byte[] data) {
         if (data[7] == data[8] && (data[8] == 0 || data[8] == (byte) 0xff) || data[0] != 2)
             setValid(false);
         else
