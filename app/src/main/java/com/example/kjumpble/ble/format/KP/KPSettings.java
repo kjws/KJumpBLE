@@ -6,14 +6,14 @@ import com.example.kjumpble.ble.format.TemperatureUnit;
 
 import java.util.ArrayList;
 
-public class KPDeviceSetting {
+public class KPSettings {
     ArrayList<ReminderFormat> reminders;
     boolean Ambient;
     TemperatureUnit unit;
     HourFormat hourFormat;
     boolean clockShowFlag;
 
-    public KPDeviceSetting(ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnit unit, HourFormat hourFormat, boolean clockShowFlag) {
+    public KPSettings (ArrayList<ReminderFormat> reminders, boolean Ambient, TemperatureUnit unit, HourFormat hourFormat, boolean clockShowFlag) {
         this.reminders = reminders;
         this.Ambient = Ambient;
         this.unit = unit;
